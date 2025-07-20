@@ -1,0 +1,68 @@
+.section {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-top: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subSection {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subSectionTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4b5563; /* Tailwind gray-600 */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.courseItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem; /* Tailwind rounded-md */
+}
+
+.routeIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f3f4f6; /* Tailwind gray-200 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.routeName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827; /* Tailwind gray-900 */
+}
+
+.routeLocation {
+  font-size: 0.875rem;
+  color: #6b7280; /* Tailwind gray-500 */
+}

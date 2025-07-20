@@ -70,3 +70,11 @@
 .ctaInactive:hover {
   background: #16a34a;
 }
+
+.textXs {
+  font-size: 0.75rem;
+}
+
+.fontMedium {
+  font-weight: 500;
+}

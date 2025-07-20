@@ -1,5 +1,10 @@
 import styles from "../page.module.css";
+import CarbonCalculator from "./_components/CarbonCalculator";
 
 export default async function Page() {
-  return <div className={styles.page}>탄소배출량 계산 페이지</div>;
+  return (
+    <div className={styles.page}>
+      <CarbonCalculator />
+    </div>
+  );
 }
