@@ -5,6 +5,9 @@ import { Button } from "@mantine/core";
 export default function Home() {
   return (
     <div className={styles.pageGrid}>
+      <Button component={Link} href="/carbon-calculation">
+        탄소배출량 계산
+      </Button>
       <Button component={Link} href="/mission">
         미션 수행
       </Button>
@@ -29,9 +32,7 @@ export default function Home() {
       <Button component={Link} href="/eco-tourism-courses">
         생태 관광 코스 목록 조회
       </Button>
-      <Button component={Link} href="/carbon-calculation">
-        탄소배출량 계산
-      </Button>
+
       <Button component={Link} href="/badges">
         뱃지 수집 현황
       </Button>

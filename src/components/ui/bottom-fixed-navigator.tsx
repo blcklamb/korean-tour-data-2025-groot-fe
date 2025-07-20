@@ -1,7 +1,14 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "./ui.module.css";
-import { ActionIcon } from "@mantine/core";
+import { UnstyledButton } from "@mantine/core";
+import {
+  IconCameraFilled,
+  IconHome,
+  IconMapRoute,
+  IconPlant,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 
 const BottomFixedNavigator = () => {
   const pathname = usePathname();
@@ -14,86 +21,62 @@ const BottomFixedNavigator = () => {
     <div className={styles.fixedBottom}>
       <div className={styles.navigatorWrap}>
         {/* 홈 */}
-        <ActionIcon
-          variant="transparent"
-          size="lg"
-          onClick={() => handleNavigate("home")}
-          className={`${styles.btn} ${
-            pathname === "home" ? styles.btnActive : styles.btnInactive
-          }`}
-          classNames={{
-            icon: styles.btn,
-          }}
+        <UnstyledButton
+          onClick={() => handleNavigate("")}
+          className={`${styles.btn}
+           ${pathname === "/" ? styles.btnActive : styles.btnInactive}
+        `}
         >
-          <div className={styles.icon}>🏠</div>
+          <IconHome width={"24"} height={"24"} />
           <div className={styles.textXs}>홈</div>
-        </ActionIcon>
+        </UnstyledButton>
 
         {/* 생태관광 */}
-        <ActionIcon
-          variant="transparent"
-          size="lg"
-          onClick={() => handleNavigate("routes")}
-          className={`${styles.btn} ${
-            pathname === "routes" ? styles.btnActive : styles.btnInactive
-          }`}
-          classNames={{
-            icon: styles.btn,
-          }}
+        <UnstyledButton
+          onClick={() => handleNavigate("eco-tourism-courses")}
+          className={`${styles.btn}
+           ${
+             pathname === "/eco-tourism-courses"
+               ? styles.btnActive
+               : styles.btnInactive
+           }
+        `}
         >
-          <div className={styles.icon}>🗺️</div>
+          <IconMapRoute width={"24"} height={"24"} />
           <div className={styles.textXs}>생태관광</div>
-        </ActionIcon>
+        </UnstyledButton>
 
         {/* 인증 - CTA 스타일 (가운데 배치) */}
-        <ActionIcon
-          variant="transparent"
-          size="lg"
-          onClick={() => handleNavigate("missions")}
-          className={`${styles.cta}${
+        <UnstyledButton
+          onClick={() => handleNavigate("mission")}
+          className={`${styles.cta} ${
             pathname === "missions" ? styles.ctaActive : styles.ctaInactive
           }`}
-          classNames={{
-            icon: styles.cta,
-          }}
         >
-          <div className={styles.ctaIcon}>📷</div>
-          <div className={`${styles.textXs} ${styles.fontMedium}`}>인증</div>
-        </ActionIcon>
+          <IconCameraFilled width={"24"} height={"24"} />
+          <div className={styles.textXs}>인증</div>
+        </UnstyledButton>
 
         {/* 커뮤니티 */}
-        <ActionIcon
-          variant="transparent"
-          size="lg"
-          onClick={() => handleNavigate("results")}
-          className={`${styles.btn} ${
-            pathname === "results" || pathname === "community"
-              ? styles.btnActive
-              : styles.btnInactive
-          }`}
-          classNames={{
-            icon: styles.btn,
-          }}
+        <UnstyledButton
+          onClick={() => handleNavigate("missions")}
+          className={`${styles.btn}
+           ${pathname === "/missions" ? styles.btnActive : styles.btnInactive}
+        `}
         >
-          <div className={styles.icon}>👥</div>
+          <IconUsersGroup width={"24"} height={"24"} />
           <div className={styles.textXs}>커뮤니티</div>
-        </ActionIcon>
-
+        </UnstyledButton>
         {/* 마이 */}
-        <ActionIcon
-          variant="transparent"
-          size="lg"
-          onClick={() => handleNavigate("dashboard")}
-          className={`${styles.btn} ${
-            pathname === "dashboard" ? styles.btnActive : styles.btnInactive
-          }`}
-          classNames={{
-            icon: styles.btn,
-          }}
+        <UnstyledButton
+          onClick={() => handleNavigate("my-page")}
+          className={`${styles.btn}
+           ${pathname === "/my-page" ? styles.btnActive : styles.btnInactive}
+        `}
         >
-          <div className={styles.icon}>🙍‍♂️</div>
-          <div className={styles.textXs}>마이</div>
-        </ActionIcon>
+          <IconPlant width={"24"} height={"24"} />
+          <div className={styles.textXs}>마이페이지</div>
+        </UnstyledButton>
       </div>
     </div>
   );

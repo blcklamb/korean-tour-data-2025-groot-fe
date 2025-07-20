@@ -28,6 +28,9 @@
   background: none;
   border: none;
   width: fit-content;
+  &:hover {
+    color: #16a34a;
+  }
 }
 
 .btnActive {
@@ -66,22 +69,4 @@
 
 .ctaInactive:hover {
   background: #16a34a;
-}
-
-.textXs {
-  font-size: 0.75rem;
-}
-
-.fontMedium {
-  font-weight: 500;
-}
-
-.icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.ctaIcon {
-  width: 1.5rem;
-  height: 1.5rem;
 }
