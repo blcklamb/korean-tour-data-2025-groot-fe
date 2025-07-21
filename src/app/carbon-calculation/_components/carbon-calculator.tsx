@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useFunnel } from "@/hooks/useFunnel";
 import { Button, Group, NumberInput, Progress } from "@mantine/core";
-import styles from "./CarbonCalulator.module.css";
+import styles from "./carbon-calculator.module.css";
 import { useForm, UseFormReturnType } from "@mantine/form";
 import { IconMapPin } from "@tabler/icons-react";
 import { mockEcoTourRoutes } from "@/app/data";
+import LogoIcon from "@/components/ui/logo";
 
 // 지역 옵션 리스트 (도시만, unique id, 경상북도 시 추가)
 const mockLocationOptions = [
@@ -118,7 +120,10 @@ const CarbonCalculator = () => {
   return (
     <div style={{ width: "100%" }}>
       <div>
-        <h1>그루미터</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <LogoIcon />
+          <h1>그루미터</h1>
+        </div>
         <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
       </div>
       <Group grow gap={5} mt="xs" w={"100%"}>

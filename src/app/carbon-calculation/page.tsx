@@ -1,5 +1,5 @@
 import styles from "../page.module.css";
-import CarbonCalculator from "./_components/CarbonCalculator";
+import CarbonCalculator from "./_components/carbon-calculator";
 
 export default async function Page() {
   return (
