@@ -18,9 +18,8 @@
 }
 
 .subTitle {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
 .subSectionTitle {
@@ -65,4 +64,20 @@
 .routeLocation {
   font-size: 0.875rem;
   color: #6b7280; /* Tailwind gray-500 */
+}
+
+.transportCard {
+  &:hover {
+    background-color: #f3f4f6; /* Tailwind gray-200 */
+  }
+  cursor: pointer;
+}
+
+.activeTransportCard {
+  background-color: var(--mantine-primary-color-0); /* Tailwind green-100 */
+  border-color: #16a34a; /* Tailwind green-600 */
+}
+
+.routeItem {
+  background-color: oklch(0.985 0.002 247.839);
 }

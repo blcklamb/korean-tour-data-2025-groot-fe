@@ -78,3 +78,12 @@
 .fontMedium {
   font-weight: 500;
 }
+
+.headerWrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 28rem;
+  margin: 0 auto;
+  height: 100%;
+}

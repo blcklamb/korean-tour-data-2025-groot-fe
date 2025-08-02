@@ -1,91 +1,110 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useFunnel } from "@/hooks/useFunnel";
-import { Button, Group, NumberInput, Progress } from "@mantine/core";
-import styles from "./carbon-calculator.module.css";
-import { useForm, UseFormReturnType } from "@mantine/form";
-import { IconMapPin } from "@tabler/icons-react";
 import { mockEcoTourRoutes } from "@/app/data";
+import { AppHeader } from "@/components/ui/header";
 import LogoIcon from "@/components/ui/logo";
+import { useFunnel } from "@/hooks/useFunnel";
+import { getRouteLabel, ROUTES } from "@/lib/routes";
+import {
+  Button,
+  ButtonProps,
+  Card,
+  ComboboxItem,
+  Flex,
+  Group,
+  NumberInput,
+  Progress,
+  Select,
+  SimpleGrid,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
+import { useForm, UseFormReturnType } from "@mantine/form";
+import {
+  IconArrowRight,
+  IconLocation,
+  IconMapPin,
+  IconPlus,
+  IconX,
+} from "@tabler/icons-react";
+import { useState } from "react";
+import styles from "./carbon-calculator.module.css";
 
 // 지역 옵션 리스트 (도시만, unique id, 경상북도 시 추가)
-const mockLocationOptions = [
-  { id: 1, value: "seoul", label: "서울" },
-  { id: 2, value: "suwon", label: "수원" },
-  { id: 3, value: "yongin", label: "용인" },
-  { id: 4, value: "goyang", label: "고양" },
-  { id: 5, value: "jeonju", label: "전주" },
-  { id: 6, value: "cheonan", label: "천안" },
-  { id: 7, value: "ansan", label: "안산" },
-  { id: 8, value: "anyang", label: "안양" },
-  { id: 9, value: "pohang", label: "포항" },
-  { id: 10, value: "uijeongbu", label: "의정부" },
-  { id: 11, value: "siheung", label: "시흥" },
-  { id: 12, value: "pyeongtaek", label: "평택" },
-  { id: 13, value: "kimpo", label: "김포" },
-  { id: 14, value: "gwangmyeong", label: "광명" },
-  { id: 15, value: "gunpo", label: "군포" },
-  { id: 16, value: "hanam", label: "하남" },
+const mockLocationOptions: ComboboxItem[] = [
+  { value: "1", label: "서울" },
+  { value: "2", label: "수원" },
+  { value: "3", label: "용인" },
+  { value: "4", label: "고양" },
+  { value: "5", label: "전주" },
+  { value: "6", label: "천안" },
+  { value: "7", label: "안산" },
+  { value: "8", label: "안양" },
+  { value: "9", label: "포항" },
+  { value: "10", label: "의정부" },
+  { value: "11", label: "시흥" },
+  { value: "12", label: "평택" },
+  { value: "13", label: "김포" },
+  { value: "14", label: "광명" },
+  { value: "15", label: "군포" },
+  { value: "16", label: "하남" },
   // 경상북도 시 추가
-  { id: 17, value: "ulsan", label: "울산" },
-  { id: 18, value: "gumi", label: "구미" },
-  { id: 19, value: "gyeongju", label: "경주" },
-  { id: 20, value: "yeongju", label: "영주" },
-  { id: 21, value: "andong", label: "안동" },
-  { id: 22, value: "miryang", label: "밀양" },
-  { id: 23, value: "ulju", label: "울주군" },
+  { value: "17", label: "울산" },
+  { value: "18", label: "구미" },
+  { value: "19", label: "경주" },
+  { value: "20", label: "영주" },
+  { value: "21", label: "안동" },
+  { value: "22", label: "밀양" },
+  { value: "23", label: "울주군" },
 ];
 
-// 경상북도 관광코스
-const mockTourismCourses = [
-  { id: 1, value: "gyeongju", label: "경주" },
-  { id: 2, value: "ulsan", label: "울산" },
-  { id: 3, value: "gumi", label: "구미" },
-  { id: 4, value: "yeongju", label: "영주" },
-  { id: 5, value: "andong", label: "안동" },
-  { id: 6, value: "miryang", label: "밀양" },
+// 새로운 교통수단 리스트 (unique id, value 추가)
+const mockTransportOptions = [
+  { id: 1, value: "walking", icon: "🚶", label: "도보" },
+  { id: 2, value: "bicycle", icon: "🚴", label: "자전거" },
+  { id: 3, value: "motorcycle", icon: "🏍️", label: "오토바이" },
+  { id: 4, value: "subway", icon: "🚇", label: "지하철" },
+  { id: 5, value: "ktx", icon: "🚄", label: "기차 (KTX)" },
+  { id: 6, value: "train", icon: "🚆", label: "기차 (일반)" },
+  { id: 7, value: "bus", icon: "🚌", label: "버스" },
+  { id: 8, value: "car_gas", icon: "🚗", label: "승용차 (내연기관)" },
+  { id: 9, value: "car_hybrid", icon: "🚙", label: "승용차 (하이브리드)" },
+  { id: 10, value: "car_electric", icon: "⚡", label: "승용차 (전기차)" },
+  { id: 11, value: "airplane", icon: "✈️", label: "비행기" },
+  { id: 12, value: "ship", icon: "🚢", label: "여객선" },
 ];
 
-// 새로운 교통수단 리스트 (unique id)
-const mockTransportOptions = {
-  walking: { id: 1, icon: "🚶", label: "도보" },
-  bicycle: { id: 2, icon: "🚴", label: "자전거" },
-  motorcycle: { id: 3, icon: "🏍️", label: "오토바이" },
-  subway: { id: 4, icon: "🚇", label: "지하철" },
-  ktx: { id: 5, icon: "🚄", label: "기차 (KTX)" },
-  train: { id: 6, icon: "🚆", label: "기차 (일반)" },
-  bus: { id: 7, icon: "🚌", label: "버스" },
-  car_gas: { id: 8, icon: "🚗", label: "승용차 (내연기관)" },
-  car_hybrid: { id: 9, icon: "🚙", label: "승용차 (하이브리드)" },
-  car_electric: { id: 10, icon: "⚡", label: "승용차 (전기차)" },
-  airplane: { id: 11, icon: "✈️", label: "비행기" },
-  ship: { id: 12, icon: "🚢", label: "여객선" },
-};
-
-const mockAccommodationOptions = [
-  { id: 1, value: "hotel_5", label: "호텔 (5성급)" },
-  { id: 2, value: "hotel_4", label: "호텔 (4성급)" },
-  { id: 3, value: "hotel_3", label: "호텔 (3성급 이하)" },
-  { id: 4, value: "guesthouse", label: "게스트하우스" },
-  { id: 5, value: "camping_facility", label: "캠핑 (시설 있음)" },
-  { id: 6, value: "camping_no_facility", label: "캠핑 (시설 없음)" },
-  { id: 7, value: "eco_hotel", label: "친환경 인증 호텔" },
-  { id: 8, value: "private_home", label: "자가 숙박 (친척/지인 집)" },
+const mockAccommodationOptions: ComboboxItem[] = [
+  { value: "1", label: "호텔 (5성급)" },
+  { value: "2", label: "호텔 (4성급)" },
+  { value: "3", label: "호텔 (3성급 이하)" },
+  { value: "4", label: "게스트하우스" },
+  { value: "5", label: "캠핑 (시설 있음)" },
+  { value: "6", label: "캠핑 (시설 없음)" },
+  { value: "7", label: "친환경 인증 호텔" },
+  { value: "8", label: "자가 숙박 (친척/지인 집)" },
 ];
 
 type CarbonCalculationStep = "PERSONNEL" | "ROUTE+ECO_COURSES" | "ACCOMODATION";
 
 interface CarbonCalculatorFormValues {
   personnel: number;
+  // todo: naming
   routes: {
-    departureCityId: number;
-    arrivalCityId: number;
-    transportationId: number;
+    departureCityId?: string;
+    arrivalCityId?: string;
+    courseId?: string; // 생태 관광 코스 ID
+    transportationId: string;
   }[];
-  ecoCourses: { courseId: number; transportationId: number }[];
+  // routes: {
+  //   departureCityId: string;
+  //   arrivalCityId: string;
+  //   transportationId: string;
+  // }[];
+  // ecoCourses: { courseId: string; transportationId: string }[];
   accomodation: {
-    typeId: number;
+    typeId: string;
     checkInDate: string;
     checkOutDate: string;
   }[];
@@ -100,7 +119,6 @@ const CarbonCalculator = () => {
     initialValues: {
       personnel: 1,
       routes: [],
-      ecoCourses: [],
       accomodation: [],
     },
   });
@@ -119,10 +137,14 @@ const CarbonCalculator = () => {
   };
   return (
     <div style={{ width: "100%" }}>
+      <AppHeader
+        showBackButton
+        title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
+      />
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <LogoIcon />
-          <h1>그루미터</h1>
+          <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>그루미터</div>
         </div>
         <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
       </div>
@@ -154,15 +176,6 @@ const CarbonCalculator = () => {
           />
         </Step>
         <Step name="ROUTE+ECO_COURSES">
-          {/* <div className={styles.section}>
-            <h2>경로 및 생태 관광 코스 선택</h2>
-            <div className={styles.buttonGroup}>
-              <Button variant="light" onClick={() => setStep("PERSONNEL")}>
-                이전
-              </Button>
-              <Button onClick={() => setStep("ACCOMODATION")}>다음</Button>
-            </div>
-          </div> */}
           <RouteEcoCoursesStep
             form={form}
             onClickNext={() => setStep("ACCOMODATION")}
@@ -173,7 +186,7 @@ const CarbonCalculator = () => {
           <div className={styles.section}>
             <h2>숙박 정보 입력</h2>
             <div className={styles.buttonGroup}>
-              <Button variant="light" onClick={() => setStep("PERSONNEL")}>
+              <Button variant="light" onClick={() => setStep("ACCOMODATION")}>
                 이전
               </Button>
               <Button onClick={() => alert("탄소 배출량 계산 완료!")}>
@@ -207,6 +220,9 @@ const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
         placeholder="인원수를 입력하세요"
         min={1}
         size="lg"
+        styles={{
+          label: { fontSize: "0.875rem", marginBottom: "4px" },
+        }}
         {...form.getInputProps("personnel")}
       />
       <div className={styles.buttonGroup}>
@@ -228,27 +244,129 @@ const RouteEcoCoursesStep = ({
   //   const [selectedCourse, setSelectedCourse] = useState<EcoTourRoute | null>(
   //     null
   //   );
+  const [selectedDepartureCity, setSelectedDepartureCity] =
+    useState<ComboboxItem | null>(null);
+  const [selectedArrivalCity, setSelectedArrivalCity] =
+    useState<ComboboxItem | null>(null);
+  const [selectedTransport, setSelectedTransport] =
+    useState<ComboboxItem | null>(null);
+
+  const onClickAddRoute = () => {
+    if (selectedDepartureCity && selectedArrivalCity && selectedTransport) {
+      form.insertListItem("routes", {
+        departureCityId: selectedDepartureCity.value,
+        arrivalCityId: selectedArrivalCity.value,
+        transportationId: selectedTransport.value,
+      });
+      setSelectedDepartureCity(null);
+      setSelectedArrivalCity(null);
+      setSelectedTransport(null);
+    } else {
+      alert("모든 필드를 선택해주세요.");
+    }
+  };
+
   return (
-    <div className={styles.section}>
-      {form.getValues().routes.map((route, index) => (
-        <div key={index} className={styles.routeItem}>
-          <div>
-            <strong>출발 도시 ID:</strong> {route.departureCityId}
-          </div>
-          <div>
-            <strong>도착 도시 ID:</strong> {route.arrivalCityId}
-          </div>
-          <div>
-            <strong>교통수단 ID:</strong> {route.transportationId}
-          </div>
-        </div>
-      ))}
+    <Flex direction="column" gap="md" style={{ padding: "16px 0px" }}>
+      {form.getValues().routes.length > 0 && (
+        <>
+          <div className={styles.subTitle}>추가된 여행 항목</div>
+          {form.getValues().routes.map((route, index) => (
+            <RouteItem
+              key={index}
+              {...route}
+              departureCityName={
+                mockLocationOptions.filter(
+                  (option) => option.value === route.departureCityId
+                )[0]?.label
+              }
+              arrivalCityName={
+                mockLocationOptions.filter(
+                  (option) => option.value === route.arrivalCityId
+                )[0]?.label
+              }
+              courseName={
+                mockEcoTourRoutes.filter(
+                  (course) => course.id === route.courseId
+                )[0]?.name
+              }
+              transportIcon={
+                mockTransportOptions.filter(
+                  (option) => option.value === route.transportationId
+                )[0]?.icon
+              }
+              onDelete={() => form.removeListItem("routes", index)}
+            />
+          ))}
+        </>
+      )}
       <div className={styles.subTitle}>경로 및 생태 관광 코스 선택</div>
-      {/* 여기에 경로 및 생태 관광 코스 선택 UI를 추가 */}
+      {/* 직접 경로 추가 */}
+      <div className={styles.subSection}>
+        <div className={styles.subSectionTitle}>
+          <IconLocation width={24} height={24} />
+          <Title order={6}>직접 경로 추가</Title>
+        </div>
+        <Flex align={"center"} gap="xs">
+          <Select
+            placeholder="출발지"
+            data={mockLocationOptions}
+            value={selectedDepartureCity ? selectedDepartureCity.value : null}
+            searchable
+            onChange={(_value, option) =>
+              setSelectedDepartureCity({
+                value: option.value,
+                label: option.label,
+              })
+            }
+          />
+          <IconArrowRight />
+          <Select
+            placeholder="도착지"
+            data={mockLocationOptions}
+            value={selectedArrivalCity ? selectedArrivalCity.value : null}
+            searchable
+            onChange={(_value, option) => setSelectedArrivalCity(option)}
+          />
+        </Flex>
+        <Title order={6}>교통 수단</Title>
+        <SimpleGrid cols={3} spacing="xs">
+          {mockTransportOptions.map((_transport) => {
+            return (
+              <Card
+                key={_transport.id}
+                withBorder
+                padding="xs"
+                className={
+                  _transport.value === selectedTransport?.value
+                    ? styles.activeTransportCard
+                    : styles.transportCard
+                }
+                onClick={() => {
+                  setSelectedTransport(_transport);
+                }}
+              >
+                <Flex
+                  direction={"column"}
+                  justify={"center"}
+                  align="center"
+                  gap="xs"
+                  h={"100%"}
+                >
+                  <span>{_transport.icon}</span>
+                  <span style={{ fontSize: "12px" }}>{_transport.label}</span>
+                </Flex>
+              </Card>
+            );
+          })}
+        </SimpleGrid>
+        <AddRouteButton onClick={onClickAddRoute} />
+      </div>
+      {/* 관광 코스 선택 */}
       <div className={styles.subSection}>
         <div className={styles.subSectionTitle}>
           <IconMapPin width={24} height={24} />
-          관광 코스 선택
+          <Title order={6}>관광 코스 선택</Title>
         </div>
         <div
           style={{
@@ -276,6 +394,58 @@ const RouteEcoCoursesStep = ({
         </Button>
         <Button onClick={onClickNext}>다음</Button>
       </div>
-    </div>
+    </Flex>
+  );
+};
+
+interface AddRouteButtonProps extends ButtonProps {
+  onClick?: () => void;
+}
+const AddRouteButton = (props: AddRouteButtonProps) => {
+  const { onClick, ...rest } = props;
+  return (
+    <Button
+      variant="subtle"
+      leftSection={<IconPlus />}
+      className={styles.addRouteButton}
+      onClick={onClick}
+      {...rest}
+    >
+      경로 추가
+    </Button>
+  );
+};
+
+interface RouteItemProps {
+  departureCityName?: string;
+  arrivalCityName?: string;
+  courseName?: string;
+  transportIcon: string;
+  onDelete: () => void;
+}
+
+const RouteItem = (props: RouteItemProps) => {
+  const { departureCityName, arrivalCityName, courseName, transportIcon } =
+    props;
+  return (
+    <Card padding="xs" className={styles.routeItem}>
+      <Flex justify={"space-between"} align="center">
+        <Flex direction={"column"} gap="xs" align={"center"}>
+          <Flex gap="xs" align={"center"}>
+            <span style={{ fontSize: "20px" }}>{transportIcon}</span>
+            {!courseName ? (
+              <Flex gap="xs">
+                <span>{departureCityName}</span>→<span>{arrivalCityName}</span>
+              </Flex>
+            ) : (
+              <span>{courseName}</span>
+            )}
+          </Flex>
+        </Flex>
+        <UnstyledButton>
+          <IconX size={16} color="red" />
+        </UnstyledButton>
+      </Flex>
+    </Card>
   );
 };
