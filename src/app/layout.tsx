@@ -1,13 +1,15 @@
 import "@mantine/core/styles.css";
 
+import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
 import {
+  AppShell,
+  AppShellMain,
   ColorSchemeScript,
   Container,
   MantineProvider,
   createTheme,
   mantineHtmlProps,
 } from "@mantine/core";
-import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
 
 export const metadata = {
   title: "Groot | 관광데이터 활용 공모전 2025",
@@ -45,8 +47,13 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <Container maw={"30rem"}>{children}</Container>
-          <BottomFixedNavigator />
+          <AppShell padding="md" header={{ height: 60 }}>
+            <AppShellMain>
+              <Container maw={"30rem"}>{children}</Container>
+              <Container h={"5rem"} />
+            </AppShellMain>
+            <BottomFixedNavigator />
+          </AppShell>
         </MantineProvider>
       </body>
     </html>

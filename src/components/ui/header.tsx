@@ -1,69 +1,92 @@
-import { Avatar, Button } from "@mantine/core";
+"use client";
+
+import { ROUTES } from "@/lib/routes";
+import {
+  AppShellHeader,
+  Avatar,
+  Button,
+  Flex,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useMemo } from "react";
+import LogoIcon from "./logo";
+import styles from "./ui.module.css";
 
 interface AppHeaderProps {
   title?: string;
   showBackButton?: boolean;
   onBackClick?: () => void;
-  user: {
-    name: string;
-    isLoggedIn: boolean;
-  };
-  onLoginClick: () => void;
-  onProfileClick: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  title,
+  title = "탄소배출량 계산",
   showBackButton = false,
   onBackClick,
-  user,
-  onLoginClick,
-  onProfileClick,
 }) => {
+  const router = useRouter();
+  const isLogin = false; // 임시 로그인 상태
+  const tempUser = {
+    name: "홍길동",
+  };
+
+  const onLoginClick = () => {
+    router.push(ROUTES.LOGIN);
+  };
+
+  // 되도록 Logo가 있을 때는 title이 없어야 함
+  const DYNAMIC_PADDING = useMemo(() => {
+    if (showBackButton) {
+      if (isLogin) return 16;
+      return 48;
+    }
+  }, [showBackButton, isLogin]);
+
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3">
-      <div className="flex items-center justify-between max-w-md mx-auto">
+    <AppShellHeader style={{ padding: "1rem 0rem" }}>
+      <div className={styles.headerWrap}>
         {/* 왼쪽 영역 */}
-        <div className="flex items-center space-x-3">
+        <Flex align="center" gap="xs">
           {showBackButton ? (
-            <Button
-              variant="ghost"
-              size="sm"
+            <UnstyledButton
+              style={{ paddingBlockStart: 6 }}
               onClick={onBackClick}
-              className="p-2"
             >
-              <IconArrowLeft className="w-5 h-5" />
-            </Button>
+              <IconArrowLeft />
+            </UnstyledButton>
           ) : (
-            <div className="flex items-center space-x-2">
-              <div className="text-2xl">🌱</div>
-              <span className="text-lg font-bold text-green-600">그루</span>
-            </div>
+            <Flex gap="xs" align="center">
+              <LogoIcon />
+              <Title order={3} c={"eco-green"}>
+                Groot
+              </Title>
+            </Flex>
           )}
-        </div>
+        </Flex>
 
         {/* 중앙 영역 - 페이지 타이틀 */}
         {title && (
-          <div className="flex-1 text-center">
-            <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
-          </div>
+          <Flex
+            flex={1}
+            justify={"center"}
+            style={{
+              paddingInlineStart: DYNAMIC_PADDING,
+            }}
+          >
+            <Title order={4}>{title}</Title>
+          </Flex>
         )}
 
         {/* 오른쪽 영역 */}
-        <div className="flex items-center space-x-2">
-          {user.isLoggedIn && (
-            <>
-              <Avatar
-                className="w-8 h-8 cursor-pointer"
-                onClick={onProfileClick}
-              >
-                {user.name[0] || "U"}
-              </Avatar>
-            </>
+        <Flex align={"center"}>
+          {isLogin && (
+            <Avatar component="a" href={ROUTES.MY_PAGE}>
+              {tempUser.name[0] || "U"}
+            </Avatar>
           )}
-          {!user.isLoggedIn && (
+          {!isLogin && (
             <Button
               variant="ghost"
               size="sm"
@@ -73,8 +96,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               로그인
             </Button>
           )}
-        </div>
+        </Flex>
       </div>
-    </div>
+    </AppShellHeader>
   );
 };
