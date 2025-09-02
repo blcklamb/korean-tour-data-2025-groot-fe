@@ -1,5 +1,5 @@
-import styles from "../page.module.css";
+import { GuideSection } from "./_components/guide-section";
 
 export default async function Page() {
-  return <div className={styles.page}>온보딩 페이지</div>;
+  return <GuideSection />;
 }

@@ -1,3 +1,4 @@
+import "./globals.css";
 import "@mantine/core/styles.css";
 
 import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
