@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { mockEcoTourRoutes } from "@/app/data";
+import { mockEcoTourRoutes, mockTransportOptions } from "@/app/data";
 import { AppHeader } from "@/components/ui/header";
 import LogoIcon from "@/components/ui/logo";
 import { useFunnel } from "@/hooks/useFunnel";
@@ -60,20 +60,20 @@ const mockLocationOptions: ComboboxItem[] = [
 ];
 
 // 새로운 교통수단 리스트 (unique id, value 추가)
-const mockTransportOptions = [
-  { id: 1, value: "walking", icon: "🚶", label: "도보" },
-  { id: 2, value: "bicycle", icon: "🚴", label: "자전거" },
-  { id: 3, value: "motorcycle", icon: "🏍️", label: "오토바이" },
-  { id: 4, value: "subway", icon: "🚇", label: "지하철" },
-  { id: 5, value: "ktx", icon: "🚄", label: "기차 (KTX)" },
-  { id: 6, value: "train", icon: "🚆", label: "기차 (일반)" },
-  { id: 7, value: "bus", icon: "🚌", label: "버스" },
-  { id: 8, value: "car_gas", icon: "🚗", label: "승용차 (내연기관)" },
-  { id: 9, value: "car_hybrid", icon: "🚙", label: "승용차 (하이브리드)" },
-  { id: 10, value: "car_electric", icon: "⚡", label: "승용차 (전기차)" },
-  { id: 11, value: "airplane", icon: "✈️", label: "비행기" },
-  { id: 12, value: "ship", icon: "🚢", label: "여객선" },
-];
+// const mockTransportOptions = [
+//   { id: 1, value: "walking", icon: "🚶", label: "도보" },
+//   { id: 2, value: "bicycle", icon: "🚴", label: "자전거" },
+//   { id: 3, value: "motorcycle", icon: "🏍️", label: "오토바이" },
+//   { id: 4, value: "subway", icon: "🚇", label: "지하철" },
+//   { id: 5, value: "ktx", icon: "🚄", label: "기차 (KTX)" },
+//   { id: 6, value: "train", icon: "🚆", label: "기차 (일반)" },
+//   { id: 7, value: "bus", icon: "🚌", label: "버스" },
+//   { id: 8, value: "car_gas", icon: "🚗", label: "승용차 (내연기관)" },
+//   { id: 9, value: "car_hybrid", icon: "🚙", label: "승용차 (하이브리드)" },
+//   { id: 10, value: "car_electric", icon: "⚡", label: "승용차 (전기차)" },
+//   { id: 11, value: "airplane", icon: "✈️", label: "비행기" },
+//   { id: 12, value: "ship", icon: "🚢", label: "여객선" },
+// ];
 
 const mockAccommodationOptions: ComboboxItem[] = [
   { value: "1", label: "호텔 (5성급)" },
@@ -92,10 +92,10 @@ interface CarbonCalculatorFormValues {
   personnel: number;
   // todo: naming
   routes: {
-    departureCityId?: string;
-    arrivalCityId?: string;
-    courseId?: string; // 생태 관광 코스 ID
-    transportationId: string;
+    departureLocationId?: number;
+    arrivalLocationId?: number;
+    courseId?: number; // 생태 관광 코스 ID
+    transportationTypeId: number;
   }[];
   // routes: {
   //   departureCityId: string;
@@ -277,22 +277,23 @@ const RouteEcoCoursesStep = ({
               {...route}
               departureCityName={
                 mockLocationOptions.filter(
-                  (option) => option.value === route.departureCityId
+                  (option) => Number(option.value) === route.departureLocationId
                 )[0]?.label
               }
               arrivalCityName={
                 mockLocationOptions.filter(
-                  (option) => option.value === route.arrivalCityId
+                  (option) => Number(option.value) === route.arrivalLocationId
                 )[0]?.label
               }
               courseName={
                 mockEcoTourRoutes.filter(
                   (course) => course.id === route.courseId
-                )[0]?.name
+                )[0]?.title
               }
               transportIcon={
                 mockTransportOptions.filter(
-                  (option) => option.value === route.transportationId
+                  (option) =>
+                    Number(option.value) === route.transportationTypeId
                 )[0]?.icon
               }
               onDelete={() => form.removeListItem("routes", index)}
@@ -330,36 +331,13 @@ const RouteEcoCoursesStep = ({
           />
         </Flex>
         <Title order={6}>교통 수단</Title>
-        <SimpleGrid cols={3} spacing="xs">
-          {mockTransportOptions.map((_transport) => {
-            return (
-              <Card
-                key={_transport.id}
-                withBorder
-                padding="xs"
-                className={
-                  _transport.value === selectedTransport?.value
-                    ? styles.activeTransportCard
-                    : styles.transportCard
-                }
-                onClick={() => {
-                  setSelectedTransport(_transport);
-                }}
-              >
-                <Flex
-                  direction={"column"}
-                  justify={"center"}
-                  align="center"
-                  gap="xs"
-                  h={"100%"}
-                >
-                  <span>{_transport.icon}</span>
-                  <span style={{ fontSize: "12px" }}>{_transport.label}</span>
-                </Flex>
-              </Card>
-            );
-          })}
-        </SimpleGrid>
+        <TransportSelect
+          options={mockTransportOptions}
+          selected={selectedTransport}
+          onSelect={(item) => {
+            setSelectedTransport(item as ComboboxItem);
+          }}
+        />
         <AddRouteButton onClick={onClickAddRoute} />
       </div>
       {/* 관광 코스 선택 */}
@@ -368,25 +346,20 @@ const RouteEcoCoursesStep = ({
           <IconMapPin width={24} height={24} />
           <Title order={6}>관광 코스 선택</Title>
         </div>
-        <div
-          style={{
-            overflow: "scroll",
-            height: "200px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-          }}
-        >
-          {mockEcoTourRoutes.map((route) => (
-            <div key={route.id} className={styles.courseItem}>
-              <span className={styles.routeIcon}>{route.mainImage}</span>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span className={styles.routeName}>{route.name}</span>
-                <span className={styles.routeLocation}>{route.location}</span>
-              </div>
+        <CourseSelect
+          options={mockEcoTourRoutes}
+          selected={null}
+          onSelect={() => {}}
+          getIcon={(item) => (
+            <span className={styles.routeIcon}>{item.thumbnailUrl}</span>
+          )}
+          getLabel={(item) => (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span className={styles.routeName}>{item.title}</span>
+              <span className={styles.routeLocation}>{item.areaName}</span>
             </div>
-          ))}
-        </div>
+          )}
+        />
       </div>
       <div className={styles.buttonGroup}>
         <Button variant="light" onClick={onClickPrevious}>
@@ -397,6 +370,105 @@ const RouteEcoCoursesStep = ({
     </Flex>
   );
 };
+
+interface TransportOption {
+  id: number;
+  label: string;
+  icon?: string;
+  value?: string;
+}
+
+interface TransportSelectProps {
+  options: TransportOption[];
+  selected: ComboboxItem | null;
+  onSelect: (item: TransportOption) => void;
+  getIcon?: (item: TransportOption) => React.ReactNode;
+  getLabel?: (item: TransportOption) => React.ReactNode;
+}
+
+function TransportSelect(props: TransportSelectProps) {
+  const { options, selected, onSelect, getIcon, getLabel } = props;
+  return (
+    <SimpleGrid cols={3} spacing="xs">
+      {options.map((item) => (
+        <Card
+          key={item.id}
+          withBorder
+          padding="xs"
+          className={
+            item.value && selected?.value && item.value === selected.value
+              ? styles.activeTransportCard
+              : styles.transportCard
+          }
+          onClick={() => onSelect(item as TransportOption)}
+        >
+          <Flex
+            direction={"column"}
+            justify={"center"}
+            align="center"
+            gap="xs"
+            h={"100%"}
+          >
+            <span>{getIcon ? getIcon(item) : item.icon}</span>
+            <span style={{ fontSize: "12px" }}>
+              {getLabel ? getLabel(item) : item.label || item.value}
+            </span>
+          </Flex>
+        </Card>
+      ))}
+    </SimpleGrid>
+  );
+}
+
+interface CourseOption {
+  id: number;
+  title: string;
+  thumbnailUrl: string;
+  areaName: string;
+  sigunguName: string;
+}
+
+interface CourseSelectProps {
+  options: CourseOption[];
+  selected: ComboboxItem | null;
+  onSelect: (item: CourseOption) => void;
+  getIcon?: (item: CourseOption) => React.ReactNode;
+  getLabel?: (item: CourseOption) => React.ReactNode;
+}
+
+function CourseSelect(props: CourseSelectProps) {
+  const { options, selected, onSelect, getIcon, getLabel } = props;
+  return (
+    <SimpleGrid cols={3} spacing="xs">
+      {options.map((item) => (
+        <Card
+          key={item.id}
+          withBorder
+          padding="xs"
+          className={
+            selected?.value && item.title === selected.value
+              ? styles.activeCourseCard
+              : styles.courseCard
+          }
+          onClick={() => onSelect(item as CourseOption)}
+        >
+          <Flex
+            direction={"column"}
+            justify={"center"}
+            align="center"
+            gap="xs"
+            h={"100%"}
+          >
+            <span>{getIcon ? getIcon(item) : item.thumbnailUrl}</span>
+            <span style={{ fontSize: "12px" }}>
+              {getLabel ? getLabel(item) : item.title}
+            </span>
+          </Flex>
+        </Card>
+      ))}
+    </SimpleGrid>
+  );
+}
 
 interface AddRouteButtonProps extends ButtonProps {
   onClick?: () => void;
