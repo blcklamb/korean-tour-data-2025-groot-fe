@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { mockEcoTourRoutes, mockTransportOptions } from "@/app/data";
@@ -8,83 +7,28 @@ import { useFunnel } from "@/hooks/useFunnel";
 import { getRouteLabel, ROUTES } from "@/lib/routes";
 import {
   Button,
-  ButtonProps,
-  Card,
   ComboboxItem,
   Flex,
   Group,
   NumberInput,
   Progress,
   Select,
-  SimpleGrid,
   Title,
-  UnstyledButton,
 } from "@mantine/core";
 import { useForm, UseFormReturnType } from "@mantine/form";
-import {
-  IconArrowRight,
-  IconLocation,
-  IconMapPin,
-  IconPlus,
-  IconX,
-} from "@tabler/icons-react";
+import { DatePickerInput } from "@mantine/dates";
+import { IconArrowRight, IconLocation, IconMapPin } from "@tabler/icons-react";
 import { useState } from "react";
 import styles from "./carbon-calculator.module.css";
-
-// 지역 옵션 리스트 (도시만, unique id, 경상북도 시 추가)
-const mockLocationOptions: ComboboxItem[] = [
-  { value: "1", label: "서울특별시 강남구" },
-  { value: "2", label: "경기도 수원시" },
-  { value: "3", label: "경기도 용인시" },
-  { value: "4", label: "경기도 고양시" },
-  { value: "7", label: "경기도 안산시" },
-  { value: "8", label: "경기도 안양시" },
-  { value: "9", label: "경상북도 포항시" },
-  { value: "10", label: "경기도 의정부시" },
-  { value: "11", label: "경기도 시흥시" },
-  { value: "12", label: "경기도 평택시" },
-  { value: "13", label: "경기도 김포시" },
-  { value: "14", label: "경기도 광명시" },
-  { value: "15", label: "경기도 군포시" },
-  { value: "16", label: "경기도 하남시" },
-  // 경상북도 시 추가
-  { value: "17", label: "경상북도 울산시" },
-  { value: "18", label: "경상북도 구미시" },
-  { value: "19", label: "경상북도 경주시" },
-  { value: "20", label: "경상북도 영주시" },
-  { value: "21", label: "경상북도 안동시" },
-  { value: "22", label: "경상북도 밀양시" },
-  { value: "23", label: "경상북도 울주군" },
-];
-
-const mockAccommodationOptions: ComboboxItem[] = [
-  { value: "1", label: "호텔 (5성급)" },
-  { value: "2", label: "호텔 (4성급)" },
-  { value: "3", label: "호텔 (3성급 이하)" },
-  { value: "4", label: "게스트하우스" },
-  { value: "5", label: "캠핑 (시설 있음)" },
-  { value: "6", label: "캠핑 (시설 없음)" },
-  { value: "7", label: "친환경 인증 호텔" },
-  { value: "8", label: "자가 숙박 (친척/지인 집)" },
-];
-
-type CarbonCalculationStep = "PERSONNEL" | "ROUTE+ECO_COURSES" | "ACCOMODATION";
-
-interface CarbonCalculatorFormValues {
-  personnel: number;
-  // todo: naming
-  routes: {
-    departureLocationId?: number;
-    arrivalLocationId?: number;
-    courseId?: number; // 생태 관광 코스 ID
-    transportationTypeId: number;
-  }[];
-  accomodation: {
-    typeId: string;
-    checkInDate: string;
-    checkOutDate: string;
-  }[];
-}
+import { TransportSelect } from "./transport-select";
+import { CourseSelect } from "./course-select";
+import { AddRouteButton } from "./add-route-button";
+import { RouteItem } from "./route-item";
+import {
+  CarbonCalculationStep,
+  CarbonCalculatorFormValues,
+  mockLocationOptions,
+} from "./types";
 
 const CarbonCalculator = () => {
   const [Funnel, Step, step, setStep] =
@@ -161,17 +105,11 @@ const CarbonCalculator = () => {
           />
         </Step>
         <Step name="ACCOMODATION">
-          <div className={styles.section}>
-            <h2>숙박 정보 입력</h2>
-            <div className={styles.buttonGroup}>
-              <Button variant="light" onClick={() => setStep("ACCOMODATION")}>
-                이전
-              </Button>
-              <Button onClick={() => alert("탄소 배출량 계산 완료!")}>
-                완료
-              </Button>
-            </div>
-          </div>
+          <AccomodationStep
+            form={form}
+            onClickPrevious={() => setStep("ROUTE+ECO_COURSES")}
+            onClickNext={() => {}}
+          />
         </Step>
       </Funnel>
     </div>
@@ -185,8 +123,7 @@ interface CommonFormProps {
   onClickNext: () => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface PersonnelStepProps extends CommonFormProps {}
+type PersonnelStepProps = CommonFormProps;
 
 const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
   return (
@@ -230,6 +167,8 @@ const RouteEcoCoursesStep = ({
   const [selectedEcoCourseTransport, setSelectedEcoCourseTransport] =
     useState<ComboboxItem | null>(null);
 
+  const enableToGoNext = form.getValues().routes.length > 0;
+
   const onClickAddCustomRoute = () => {
     if (
       selectedDepartureCity &&
@@ -262,8 +201,6 @@ const RouteEcoCoursesStep = ({
     }
   };
 
-  const enableToGoNext = form.getValues().routes.length > 0;
-
   return (
     <Flex direction="column" gap="md" style={{ padding: "16px 0px" }}>
       {form.getValues().routes.length > 0 && (
@@ -272,7 +209,6 @@ const RouteEcoCoursesStep = ({
           {form.getValues().routes.map((route, index) => (
             <RouteItem
               key={index}
-              {...route}
               departureCityName={
                 mockLocationOptions.filter(
                   (option) => option.value === String(route.departureLocationId)
@@ -292,7 +228,7 @@ const RouteEcoCoursesStep = ({
                 mockTransportOptions.filter(
                   (option) =>
                     option.value === String(route.transportationTypeId)
-                )[0]?.icon
+                )[0]?.icon || ""
               }
               onDelete={() => form.removeListItem("routes", index)}
             />
@@ -385,149 +321,37 @@ const RouteEcoCoursesStep = ({
   );
 };
 
-interface TransportOption {
-  id: number;
-  label: string;
-  icon?: string;
-  value?: string;
+interface AccomodationStepProps extends CommonFormProps {
+  onClickPrevious: () => void;
 }
 
-interface TransportSelectProps {
-  options: TransportOption[];
-  selected: ComboboxItem | null;
-  onSelect: (item: TransportOption) => void;
-  getIcon?: (item: TransportOption) => React.ReactNode;
-  getLabel?: (item: TransportOption) => React.ReactNode;
-}
-
-function TransportSelect(props: TransportSelectProps) {
-  const { options, selected, onSelect, getIcon, getLabel } = props;
+const AccomodationStep = ({ form, onClickPrevious }: AccomodationStepProps) => {
   return (
-    <SimpleGrid cols={3} spacing="xs">
-      {options.map((item) => (
-        <Card
-          key={item.id}
-          withBorder
-          padding="xs"
-          className={
-            item.value && selected?.value && item.value === selected.value
-              ? styles.activeTransportCard
-              : styles.transportCard
-          }
-          onClick={() => onSelect(item as TransportOption)}
-        >
-          <Flex
-            direction={"column"}
-            justify={"center"}
-            align="center"
-            gap="xs"
-            h={"100%"}
-          >
-            <span>{getIcon ? getIcon(item) : item.icon}</span>
-            <span style={{ fontSize: "12px" }}>
-              {getLabel ? getLabel(item) : item.label || item.value}
-            </span>
-          </Flex>
-        </Card>
-      ))}
-    </SimpleGrid>
-  );
-}
-
-interface CourseOption {
-  id: number;
-  title: string;
-  thumbnailUrl: string;
-  areaName: string;
-  sigunguName: string;
-  label: string;
-  value: string;
-}
-
-interface CourseSelectProps {
-  options: CourseOption[];
-  selected: ComboboxItem | null;
-  onSelect: (item: CourseOption) => void;
-  getIcon?: (item: CourseOption) => React.ReactNode;
-  getLabel?: (item: CourseOption) => React.ReactNode;
-}
-
-function CourseSelect(props: CourseSelectProps) {
-  const { options, selected, onSelect, getIcon, getLabel } = props;
-  return (
-    <Flex direction={"column"} gap="xs">
-      {options.map((item) => (
-        <Card
-          key={item.id}
-          withBorder
-          padding={"4px"}
-          className={
-            selected?.value && item.value === selected.value
-              ? styles.activeCourseCard
-              : styles.courseCard
-          }
-          onClick={() => onSelect(item as CourseOption)}
-        >
-          <Flex align="center" gap="xs" h={"100%"}>
-            <span>{getIcon ? getIcon(item) : item.thumbnailUrl}</span>
-            <span style={{ fontSize: "12px" }}>
-              {getLabel ? getLabel(item) : item.title}
-            </span>
-          </Flex>
-        </Card>
-      ))}
-    </Flex>
-  );
-}
-
-interface AddRouteButtonProps extends ButtonProps {
-  onClick?: () => void;
-}
-const AddRouteButton = (props: AddRouteButtonProps) => {
-  const { onClick, ...rest } = props;
-  return (
-    <Button
-      variant="subtle"
-      leftSection={<IconPlus />}
-      className={styles.addRouteButton}
-      onClick={onClick}
-      {...rest}
-    >
-      경로 추가
-    </Button>
-  );
-};
-
-interface RouteItemProps {
-  departureCityName?: string;
-  arrivalCityName?: string;
-  courseName?: string;
-  transportIcon: string;
-  onDelete: () => void;
-}
-
-const RouteItem = (props: RouteItemProps) => {
-  const { departureCityName, arrivalCityName, courseName, transportIcon } =
-    props;
-  return (
-    <Card padding="xs" className={styles.routeItem}>
-      <Flex justify={"space-between"} align="center">
-        <Flex direction={"column"} gap="xs" align={"center"}>
-          <Flex gap="xs" align={"center"}>
-            <span style={{ fontSize: "20px" }}>{transportIcon}</span>
-            {!courseName ? (
-              <Flex gap="xs">
-                <span>{departureCityName}</span>→<span>{arrivalCityName}</span>
-              </Flex>
-            ) : (
-              <span>{courseName}</span>
-            )}
-          </Flex>
+    <div className={styles.section}>
+      <h2>숙박 정보 입력</h2>
+      <div className={styles.subSection}>
+        <Title order={6}>숙박 기간</Title>
+        <Flex gap="md">
+          <DatePickerInput
+            placeholder="체크인 날짜"
+            label="체크인"
+            styles={{ label: { fontSize: "0.875rem", marginBottom: "4px" } }}
+          />
+          <DatePickerInput
+            placeholder="체크아웃 날짜"
+            label="체크아웃"
+            styles={{ label: { fontSize: "0.875rem", marginBottom: "4px" } }}
+          />
         </Flex>
-        <UnstyledButton>
-          <IconX size={16} color="red" />
-        </UnstyledButton>
-      </Flex>
-    </Card>
+        <Title order={6}>숙박 유형</Title>
+      </div>
+      <div className={styles.buttonGroup}>
+        <Button variant="light" onClick={onClickPrevious}>
+          이전
+        </Button>
+
+        <Button onClick={() => alert("탄소 배출량 계산 완료!")}>완료</Button>
+      </div>
+    </div>
   );
 };
