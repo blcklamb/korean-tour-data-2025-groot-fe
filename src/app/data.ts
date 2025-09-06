@@ -1,6 +1,8 @@
 export const mockEcoTourRoutes: {
   id: number;
+  value: string;
   title: string;
+  label: string;
   thumbnailUrl: string;
   areaName: string;
   sigunguName: string;
@@ -8,7 +10,9 @@ export const mockEcoTourRoutes: {
 }[] = [
   {
     id: 1,
+    value: "1",
     title: "문경새재 벚꽃길",
+    label: "문경새재 벚꽃길",
     thumbnailUrl: "🌸",
     areaName: "경상북도",
     sigunguName: "문경시",
@@ -16,7 +20,9 @@ export const mockEcoTourRoutes: {
   },
   {
     id: 2,
+    value: "2",
     title: "주왕산 국립공원",
+    label: "주왕산 국립공원",
     thumbnailUrl: "🏔️",
     areaName: "경상북도",
     sigunguName: "청송군",
@@ -24,7 +30,9 @@ export const mockEcoTourRoutes: {
   },
   {
     id: 3,
+    value: "3",
     title: "안동 하회마을",
+    label: "안동 하회마을",
     thumbnailUrl: "🏘️",
     areaName: "경상북도",
     sigunguName: "안동시",
@@ -32,7 +40,9 @@ export const mockEcoTourRoutes: {
   },
   {
     id: 4,
+    value: "4",
     title: "경주 불국사·석굴암",
+    label: "경주 불국사·석굴암",
     thumbnailUrl: "🏯",
     areaName: "경상북도",
     sigunguName: "경주시",
@@ -40,7 +50,9 @@ export const mockEcoTourRoutes: {
   },
   {
     id: 5,
+    value: "5",
     title: "울릉도·독도",
+    label: "울릉도·독도",
     thumbnailUrl: "🏝️",
     areaName: "경상북도",
     sigunguName: "울릉군",

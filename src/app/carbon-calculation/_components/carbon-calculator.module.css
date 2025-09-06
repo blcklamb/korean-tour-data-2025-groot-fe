@@ -81,3 +81,8 @@
 .routeItem {
   background-color: oklch(0.985 0.002 247.839);
 }
+
+.activeCourseCard {
+  background-color: var(--mantine-primary-color-0); /* Tailwind green-100 */
+  border-color: #16a34a; /* Tailwind green-600 */
+}

@@ -33,47 +33,29 @@ import styles from "./carbon-calculator.module.css";
 
 // 지역 옵션 리스트 (도시만, unique id, 경상북도 시 추가)
 const mockLocationOptions: ComboboxItem[] = [
-  { value: "1", label: "서울" },
-  { value: "2", label: "수원" },
-  { value: "3", label: "용인" },
-  { value: "4", label: "고양" },
-  { value: "5", label: "전주" },
-  { value: "6", label: "천안" },
-  { value: "7", label: "안산" },
-  { value: "8", label: "안양" },
-  { value: "9", label: "포항" },
-  { value: "10", label: "의정부" },
-  { value: "11", label: "시흥" },
-  { value: "12", label: "평택" },
-  { value: "13", label: "김포" },
-  { value: "14", label: "광명" },
-  { value: "15", label: "군포" },
-  { value: "16", label: "하남" },
+  { value: "1", label: "서울특별시 강남구" },
+  { value: "2", label: "경기도 수원시" },
+  { value: "3", label: "경기도 용인시" },
+  { value: "4", label: "경기도 고양시" },
+  { value: "7", label: "경기도 안산시" },
+  { value: "8", label: "경기도 안양시" },
+  { value: "9", label: "경상북도 포항시" },
+  { value: "10", label: "경기도 의정부시" },
+  { value: "11", label: "경기도 시흥시" },
+  { value: "12", label: "경기도 평택시" },
+  { value: "13", label: "경기도 김포시" },
+  { value: "14", label: "경기도 광명시" },
+  { value: "15", label: "경기도 군포시" },
+  { value: "16", label: "경기도 하남시" },
   // 경상북도 시 추가
-  { value: "17", label: "울산" },
-  { value: "18", label: "구미" },
-  { value: "19", label: "경주" },
-  { value: "20", label: "영주" },
-  { value: "21", label: "안동" },
-  { value: "22", label: "밀양" },
-  { value: "23", label: "울주군" },
+  { value: "17", label: "경상북도 울산시" },
+  { value: "18", label: "경상북도 구미시" },
+  { value: "19", label: "경상북도 경주시" },
+  { value: "20", label: "경상북도 영주시" },
+  { value: "21", label: "경상북도 안동시" },
+  { value: "22", label: "경상북도 밀양시" },
+  { value: "23", label: "경상북도 울주군" },
 ];
-
-// 새로운 교통수단 리스트 (unique id, value 추가)
-// const mockTransportOptions = [
-//   { id: 1, value: "walking", icon: "🚶", label: "도보" },
-//   { id: 2, value: "bicycle", icon: "🚴", label: "자전거" },
-//   { id: 3, value: "motorcycle", icon: "🏍️", label: "오토바이" },
-//   { id: 4, value: "subway", icon: "🚇", label: "지하철" },
-//   { id: 5, value: "ktx", icon: "🚄", label: "기차 (KTX)" },
-//   { id: 6, value: "train", icon: "🚆", label: "기차 (일반)" },
-//   { id: 7, value: "bus", icon: "🚌", label: "버스" },
-//   { id: 8, value: "car_gas", icon: "🚗", label: "승용차 (내연기관)" },
-//   { id: 9, value: "car_hybrid", icon: "🚙", label: "승용차 (하이브리드)" },
-//   { id: 10, value: "car_electric", icon: "⚡", label: "승용차 (전기차)" },
-//   { id: 11, value: "airplane", icon: "✈️", label: "비행기" },
-//   { id: 12, value: "ship", icon: "🚢", label: "여객선" },
-// ];
 
 const mockAccommodationOptions: ComboboxItem[] = [
   { value: "1", label: "호텔 (5성급)" },
@@ -97,12 +79,6 @@ interface CarbonCalculatorFormValues {
     courseId?: number; // 생태 관광 코스 ID
     transportationTypeId: number;
   }[];
-  // routes: {
-  //   departureCityId: string;
-  //   arrivalCityId: string;
-  //   transportationId: string;
-  // }[];
-  // ecoCourses: { courseId: string; transportationId: string }[];
   accomodation: {
     typeId: string;
     checkInDate: string;
@@ -122,6 +98,8 @@ const CarbonCalculator = () => {
       accomodation: [],
     },
   });
+
+  console.log(form.getValues());
 
   const getStepProgress = (_step: CarbonCalculationStep) => {
     switch (_step) {
@@ -241,30 +219,50 @@ const RouteEcoCoursesStep = ({
   onClickNext,
   onClickPrevious,
 }: RouteEcoCoursesStepProps) => {
-  //   const [selectedCourse, setSelectedCourse] = useState<EcoTourRoute | null>(
-  //     null
-  //   );
   const [selectedDepartureCity, setSelectedDepartureCity] =
     useState<ComboboxItem | null>(null);
   const [selectedArrivalCity, setSelectedArrivalCity] =
     useState<ComboboxItem | null>(null);
-  const [selectedTransport, setSelectedTransport] =
+  const [selectedCustomRouteTransport, setSelectedCustomRouteTransport] =
+    useState<ComboboxItem | null>(null);
+  const [selectedEcoCourse, setSelectedEcoCourse] =
+    useState<ComboboxItem | null>(null);
+  const [selectedEcoCourseTransport, setSelectedEcoCourseTransport] =
     useState<ComboboxItem | null>(null);
 
-  const onClickAddRoute = () => {
-    if (selectedDepartureCity && selectedArrivalCity && selectedTransport) {
+  const onClickAddCustomRoute = () => {
+    if (
+      selectedDepartureCity &&
+      selectedArrivalCity &&
+      selectedCustomRouteTransport
+    ) {
       form.insertListItem("routes", {
-        departureCityId: selectedDepartureCity.value,
-        arrivalCityId: selectedArrivalCity.value,
-        transportationId: selectedTransport.value,
+        departureLocationId: selectedDepartureCity.value,
+        arrivalLocationId: selectedArrivalCity.value,
+        transportationTypeId: selectedCustomRouteTransport.value,
       });
       setSelectedDepartureCity(null);
       setSelectedArrivalCity(null);
-      setSelectedTransport(null);
+      setSelectedCustomRouteTransport(null);
     } else {
       alert("모든 필드를 선택해주세요.");
     }
   };
+
+  const onClickAddEcoCourse = () => {
+    if (selectedEcoCourse && selectedEcoCourseTransport) {
+      form.insertListItem("routes", {
+        courseId: selectedEcoCourse.value,
+        transportationTypeId: selectedEcoCourseTransport.value,
+      });
+      setSelectedEcoCourseTransport(null);
+      setSelectedEcoCourse(null);
+    } else {
+      alert("관광 코스를 선택해주세요.");
+    }
+  };
+
+  const enableToGoNext = form.getValues().routes.length > 0;
 
   return (
     <Flex direction="column" gap="md" style={{ padding: "16px 0px" }}>
@@ -277,23 +275,23 @@ const RouteEcoCoursesStep = ({
               {...route}
               departureCityName={
                 mockLocationOptions.filter(
-                  (option) => Number(option.value) === route.departureLocationId
+                  (option) => option.value === String(route.departureLocationId)
                 )[0]?.label
               }
               arrivalCityName={
                 mockLocationOptions.filter(
-                  (option) => Number(option.value) === route.arrivalLocationId
+                  (option) => option.value === String(route.arrivalLocationId)
                 )[0]?.label
               }
               courseName={
                 mockEcoTourRoutes.filter(
-                  (course) => course.id === route.courseId
+                  (course) => course.value === String(route.courseId)
                 )[0]?.title
               }
               transportIcon={
                 mockTransportOptions.filter(
                   (option) =>
-                    Number(option.value) === route.transportationTypeId
+                    option.value === String(route.transportationTypeId)
                 )[0]?.icon
               }
               onDelete={() => form.removeListItem("routes", index)}
@@ -333,12 +331,12 @@ const RouteEcoCoursesStep = ({
         <Title order={6}>교통 수단</Title>
         <TransportSelect
           options={mockTransportOptions}
-          selected={selectedTransport}
+          selected={selectedCustomRouteTransport}
           onSelect={(item) => {
-            setSelectedTransport(item as ComboboxItem);
+            setSelectedCustomRouteTransport(item as ComboboxItem);
           }}
         />
-        <AddRouteButton onClick={onClickAddRoute} />
+        <AddRouteButton onClick={onClickAddCustomRoute} />
       </div>
       {/* 관광 코스 선택 */}
       <div className={styles.subSection}>
@@ -346,26 +344,42 @@ const RouteEcoCoursesStep = ({
           <IconMapPin width={24} height={24} />
           <Title order={6}>관광 코스 선택</Title>
         </div>
-        <CourseSelect
-          options={mockEcoTourRoutes}
-          selected={null}
-          onSelect={() => {}}
-          getIcon={(item) => (
-            <span className={styles.routeIcon}>{item.thumbnailUrl}</span>
-          )}
-          getLabel={(item) => (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span className={styles.routeName}>{item.title}</span>
-              <span className={styles.routeLocation}>{item.areaName}</span>
-            </div>
-          )}
+        <Title order={6}>코스</Title>
+        <div style={{ maxHeight: "160px", overflowY: "auto" }}>
+          <CourseSelect
+            options={mockEcoTourRoutes}
+            selected={selectedEcoCourse}
+            onSelect={(item) => {
+              setSelectedEcoCourse(item as ComboboxItem);
+            }}
+            getIcon={(item) => (
+              <span className={styles.routeIcon}>{item.thumbnailUrl}</span>
+            )}
+            getLabel={(item) => (
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span className={styles.routeName}>{item.title}</span>
+                <span className={styles.routeLocation}>{item.areaName}</span>
+              </div>
+            )}
+          />
+        </div>
+        <Title order={6}>교통 수단</Title>
+        <TransportSelect
+          options={mockTransportOptions}
+          selected={selectedEcoCourseTransport}
+          onSelect={(item) => {
+            setSelectedEcoCourseTransport(item as ComboboxItem);
+          }}
         />
+        <AddRouteButton onClick={onClickAddEcoCourse} />
       </div>
       <div className={styles.buttonGroup}>
         <Button variant="light" onClick={onClickPrevious}>
           이전
         </Button>
-        <Button onClick={onClickNext}>다음</Button>
+        <Button disabled={!enableToGoNext} onClick={onClickNext}>
+          다음
+        </Button>
       </div>
     </Flex>
   );
@@ -426,6 +440,8 @@ interface CourseOption {
   thumbnailUrl: string;
   areaName: string;
   sigunguName: string;
+  label: string;
+  value: string;
 }
 
 interface CourseSelectProps {
@@ -439,26 +455,20 @@ interface CourseSelectProps {
 function CourseSelect(props: CourseSelectProps) {
   const { options, selected, onSelect, getIcon, getLabel } = props;
   return (
-    <SimpleGrid cols={3} spacing="xs">
+    <Flex direction={"column"} gap="xs">
       {options.map((item) => (
         <Card
           key={item.id}
           withBorder
-          padding="xs"
+          padding={"4px"}
           className={
-            selected?.value && item.title === selected.value
+            selected?.value && item.value === selected.value
               ? styles.activeCourseCard
               : styles.courseCard
           }
           onClick={() => onSelect(item as CourseOption)}
         >
-          <Flex
-            direction={"column"}
-            justify={"center"}
-            align="center"
-            gap="xs"
-            h={"100%"}
-          >
+          <Flex align="center" gap="xs" h={"100%"}>
             <span>{getIcon ? getIcon(item) : item.thumbnailUrl}</span>
             <span style={{ fontSize: "12px" }}>
               {getLabel ? getLabel(item) : item.title}
@@ -466,7 +476,7 @@ function CourseSelect(props: CourseSelectProps) {
           </Flex>
         </Card>
       ))}
-    </SimpleGrid>
+    </Flex>
   );
 }
 
