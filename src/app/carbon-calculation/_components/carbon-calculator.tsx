@@ -7,6 +7,7 @@ import { useFunnel } from "@/hooks/useFunnel";
 import { getRouteLabel, ROUTES } from "@/lib/routes";
 import {
   Button,
+  Card,
   ComboboxItem,
   Flex,
   Group,
@@ -17,7 +18,12 @@ import {
 } from "@mantine/core";
 import { useForm, UseFormReturnType } from "@mantine/form";
 import { DatePickerInput } from "@mantine/dates";
-import { IconArrowRight, IconLocation, IconMapPin } from "@tabler/icons-react";
+import {
+  IconArrowRight,
+  IconCalendar,
+  IconLocation,
+  IconMapPin,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import styles from "./carbon-calculator.module.css";
 import { TransportSelect } from "./transport-select";
@@ -27,8 +33,11 @@ import { RouteItem } from "./route-item";
 import {
   CarbonCalculationStep,
   CarbonCalculatorFormValues,
+  mockAccommodationOptions,
   mockLocationOptions,
 } from "./types";
+import { AccomodationItem } from "./accomodation-item";
+import { useRouter } from "next/navigation";
 
 const CarbonCalculator = () => {
   const [Funnel, Step, step, setStep] =
@@ -42,8 +51,15 @@ const CarbonCalculator = () => {
       accomodation: [],
     },
   });
+  const route = useRouter();
 
-  console.log(form.getValues());
+  const goToMainPage = () => {
+    alert(
+      `탄소 배출량 계산이 완료되었습니다!", ${JSON.stringify(form.getValues())}`
+    );
+
+    route.push("/");
+  };
 
   const getStepProgress = (_step: CarbonCalculationStep) => {
     switch (_step) {
@@ -108,7 +124,7 @@ const CarbonCalculator = () => {
           <AccomodationStep
             form={form}
             onClickPrevious={() => setStep("ROUTE+ECO_COURSES")}
-            onClickNext={() => {}}
+            onClickNext={goToMainPage}
           />
         </Step>
       </Funnel>
@@ -325,32 +341,109 @@ interface AccomodationStepProps extends CommonFormProps {
   onClickPrevious: () => void;
 }
 
-const AccomodationStep = ({ form, onClickPrevious }: AccomodationStepProps) => {
+const AccomodationStep = ({
+  form,
+  onClickPrevious,
+  onClickNext,
+}: AccomodationStepProps) => {
+  const [accomodationPeriod, setAccomodationPeriod] = useState<
+    [Date | null, Date | null]
+  >([null, null]);
+  const [selectedAccomodation, setSelectedAccomodation] =
+    useState<ComboboxItem | null>(null);
+
+  const enableToGoNext = form.getValues().accomodation.length > 0;
+
+  const onClickAddAccomodation = () => {
+    if (selectedAccomodation) {
+      form.insertListItem("accomodation", {
+        accomodationTypeId: selectedAccomodation.value,
+      });
+      setSelectedAccomodation(null);
+    } else {
+      alert("숙박 유형을 선택해주세요.");
+    }
+  };
   return (
     <div className={styles.section}>
       <h2>숙박 정보 입력</h2>
+      <>
+        {form.getValues().accomodation.map((item, index) => {
+          const typeLabel =
+            mockAccommodationOptions.find(
+              (opt) => opt.value === item.accomodationTypeId
+            )?.label || item.accomodationTypeId;
+          return (
+            <AccomodationItem
+              key={index}
+              checkInDate={item.checkInDate}
+              checkOutDate={item.checkOutDate}
+              typeLabel={typeLabel}
+              onDelete={() => form.removeListItem("accomodation", index)}
+            />
+          );
+        })}
+      </>
       <div className={styles.subSection}>
         <Title order={6}>숙박 기간</Title>
         <Flex gap="md">
           <DatePickerInput
-            placeholder="체크인 날짜"
-            label="체크인"
-            styles={{ label: { fontSize: "0.875rem", marginBottom: "4px" } }}
-          />
-          <DatePickerInput
-            placeholder="체크아웃 날짜"
-            label="체크아웃"
-            styles={{ label: { fontSize: "0.875rem", marginBottom: "4px" } }}
+            leftSection={<IconCalendar size={18} stroke={1.5} />}
+            type="range"
+            placeholder="체크인 - 체크아웃"
+            label="숙박 기간"
+            style={{ flex: 1 }}
+            value={accomodationPeriod}
+            onChange={(date) =>
+              setAccomodationPeriod(date as [Date | null, Date | null])
+            }
           />
         </Flex>
         <Title order={6}>숙박 유형</Title>
+        <Flex
+          direction={"column"}
+          gap="xs"
+          style={{
+            maxHeight: "200px",
+            overflowY: "auto",
+          }}
+        >
+          <Flex direction={"column"} gap="xs">
+            {mockAccommodationOptions.map((option) => (
+              <Card
+                key={option.value}
+                withBorder
+                padding="xs"
+                className={
+                  selectedAccomodation?.value &&
+                  option.value === selectedAccomodation.value
+                    ? styles.activeCourseCard
+                    : styles.courseCard
+                }
+                onClick={() => setSelectedAccomodation(option)}
+              >
+                <Flex align="center" gap="xs" h={"100%"}>
+                  <span>{option.label}</span>
+                </Flex>
+              </Card>
+            ))}
+          </Flex>
+        </Flex>
       </div>
+      <AddRouteButton buttonText="숙박 추가" onClick={onClickAddAccomodation} />
       <div className={styles.buttonGroup}>
         <Button variant="light" onClick={onClickPrevious}>
           이전
         </Button>
-
-        <Button onClick={() => alert("탄소 배출량 계산 완료!")}>완료</Button>
+        <Button
+          disabled={!enableToGoNext}
+          onClick={() => {
+            alert("API 연결 전, 탄소 배출량 계산 완료!");
+            onClickNext();
+          }}
+        >
+          완료
+        </Button>
       </div>
     </div>
   );

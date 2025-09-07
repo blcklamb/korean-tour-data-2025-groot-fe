@@ -15,7 +15,7 @@ export interface CarbonCalculatorFormValues {
     transportationTypeId: number;
   }[];
   accomodation: {
-    typeId: string;
+    accomodationTypeId: string;
     checkInDate: string;
     checkOutDate: string;
   }[];
