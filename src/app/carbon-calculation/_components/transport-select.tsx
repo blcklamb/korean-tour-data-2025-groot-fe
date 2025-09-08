@@ -1,6 +1,5 @@
 import { Card, Flex, SimpleGrid } from "@mantine/core";
 import { TransportSelectProps } from "./types";
-import styles from "./carbon-calculator.module.css";
 
 export function TransportSelect(props: TransportSelectProps) {
   const { options, selected, onSelect, getIcon, getLabel } = props;
@@ -11,11 +10,11 @@ export function TransportSelect(props: TransportSelectProps) {
           key={item.id}
           withBorder
           padding="xs"
-          className={
+          className={`cursor-pointer hover:bg-gray-100 ${
             item.value && selected?.value && item.value === selected.value
-              ? styles.activeTransportCard
-              : styles.transportCard
-          }
+              ? "bg-green-100 border-green-600"
+              : ""
+          }`}
           onClick={() => onSelect(item)}
         >
           <Flex

@@ -1,5 +1,7 @@
-import styles from "../page.module.css";
-
 export default async function Page() {
-  return <div className={styles.page}>미션 수행 페이지</div>;
+  return (
+    <div className="flex justify-center items-center min-h-[60vh]">
+      미션 수행 페이지
+    </div>
+  );
 }

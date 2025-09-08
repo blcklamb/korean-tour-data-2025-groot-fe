@@ -1,5 +1,7 @@
-import styles from "../page.module.css";
-
 export default async function Page() {
-  return <div className={styles.page}>마이 페이지</div>;
+  return (
+    <div className="flex justify-center items-center min-h-[60vh]">
+      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+    </div>
+  );
 }

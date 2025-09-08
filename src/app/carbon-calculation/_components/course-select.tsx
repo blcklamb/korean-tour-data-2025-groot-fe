@@ -1,6 +1,5 @@
 import { Card, Flex } from "@mantine/core";
 import { CourseSelectProps } from "./types";
-import styles from "./carbon-calculator.module.css";
 
 export function CourseSelect(props: CourseSelectProps) {
   const { options, selected, onSelect, getIcon, getLabel } = props;
@@ -13,8 +12,8 @@ export function CourseSelect(props: CourseSelectProps) {
           padding={"4px"}
           className={
             selected?.value && item.value === selected.value
-              ? styles.activeCourseCard
-              : styles.courseCard
+              ? "bg-green-100 border-green-600"
+              : ""
           }
           onClick={() => onSelect(item)}
         >

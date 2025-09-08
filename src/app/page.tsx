@@ -1,11 +1,10 @@
 import { ROUTES } from "@/lib/routes";
 import { Button } from "@mantine/core";
 import Link from "next/link";
-import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.pageGrid}>
+    <div className="flex flex-col gap-4 pt-5">
       <Button component={Link} href={ROUTES.CARBON_CALCULATION}>
         탄소배출량 계산
       </Button>

@@ -1,7 +1,6 @@
 import { Card, Flex, UnstyledButton } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { RouteItemProps } from "./types";
-import styles from "./carbon-calculator.module.css";
 
 export const RouteItem = (props: RouteItemProps) => {
   const {
@@ -12,7 +11,7 @@ export const RouteItem = (props: RouteItemProps) => {
     onDelete,
   } = props;
   return (
-    <Card padding="xs" className={styles.routeItem}>
+    <Card padding="xs" className="bg-slate-50">
       <Flex justify={"space-between"} align="center">
         <Flex direction={"column"} gap="xs" align={"center"}>
           <Flex gap="xs" align={"center"}>

@@ -1,7 +1,6 @@
 import { Card, Flex, UnstyledButton } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import styles from "./carbon-calculator.module.css";
 
 interface AccomodationItemProps {
   checkInDate: string;
@@ -17,7 +16,7 @@ export const AccomodationItem = ({
   onDelete,
 }: AccomodationItemProps) => {
   return (
-    <Card padding="xs" className={styles.routeItem}>
+    <Card padding="xs" className="bg-slate-50">
       <Flex justify="space-between" align="center">
         <Flex direction="column" gap="xs">
           <Flex gap="xs">

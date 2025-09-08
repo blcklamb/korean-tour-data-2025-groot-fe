@@ -25,7 +25,6 @@ import {
   IconMapPin,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import styles from "./carbon-calculator.module.css";
 import { TransportSelect } from "./transport-select";
 import { CourseSelect } from "./course-select";
 import { AddRouteButton } from "./add-route-button";
@@ -74,15 +73,15 @@ const CarbonCalculator = () => {
     }
   };
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       <AppHeader
         showBackButton
         title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
       />
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div className="flex items-center gap-2">
           <LogoIcon />
-          <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>그루미터</div>
+          <div className="text-2xl font-bold">그루미터</div>
         </div>
         <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
       </div>
@@ -143,8 +142,8 @@ type PersonnelStepProps = CommonFormProps;
 
 const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
   return (
-    <div className={styles.section}>
-      <div className={styles.subTitle}>인원수 입력</div>
+    <div className="border border-gray-200 rounded-lg mt-4 p-4 flex flex-col gap-4">
+      <div className="text-base font-semibold">인원수 입력</div>
       <NumberInput
         key={form.key("personnel")}
         label="몇 명이서 여행을 계획하고 계신가요?"
@@ -156,7 +155,7 @@ const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
         }}
         {...form.getInputProps("personnel")}
       />
-      <div className={styles.buttonGroup}>
+      <div className="flex gap-2">
         <Button onClick={onClickNext}>다음</Button>
       </div>
     </div>
@@ -218,10 +217,10 @@ const RouteEcoCoursesStep = ({
   };
 
   return (
-    <Flex direction="column" gap="md" style={{ padding: "16px 0px" }}>
+    <Flex direction="column" gap="md" className="py-4">
       {form.getValues().routes.length > 0 && (
         <>
-          <div className={styles.subTitle}>추가된 여행 항목</div>
+          <div className="text-base font-semibold">추가된 여행 항목</div>
           {form.getValues().routes.map((route, index) => (
             <RouteItem
               key={index}
@@ -251,10 +250,10 @@ const RouteEcoCoursesStep = ({
           ))}
         </>
       )}
-      <div className={styles.subTitle}>경로 및 생태 관광 코스 선택</div>
+      <div className="text-base font-semibold">경로 및 생태 관광 코스 선택</div>
       {/* 직접 경로 추가 */}
-      <div className={styles.subSection}>
-        <div className={styles.subSectionTitle}>
+      <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
+        <div className="text-base font-medium text-gray-600 flex items-center gap-2">
           <IconLocation width={24} height={24} />
           <Title order={6}>직접 경로 추가</Title>
         </div>
@@ -291,13 +290,13 @@ const RouteEcoCoursesStep = ({
         <AddRouteButton onClick={onClickAddCustomRoute} />
       </div>
       {/* 관광 코스 선택 */}
-      <div className={styles.subSection}>
-        <div className={styles.subSectionTitle}>
+      <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
+        <div className="text-base font-medium text-gray-600 flex items-center gap-2">
           <IconMapPin width={24} height={24} />
           <Title order={6}>관광 코스 선택</Title>
         </div>
         <Title order={6}>코스</Title>
-        <div style={{ maxHeight: "160px", overflowY: "auto" }}>
+        <div className="max-h-40 overflow-y-auto">
           <CourseSelect
             options={mockEcoTourRoutes}
             selected={selectedEcoCourse}
@@ -305,12 +304,16 @@ const RouteEcoCoursesStep = ({
               setSelectedEcoCourse(item as ComboboxItem);
             }}
             getIcon={(item) => (
-              <span className={styles.routeIcon}>{item.thumbnailUrl}</span>
+              <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                {item.thumbnailUrl}
+              </span>
             )}
             getLabel={(item) => (
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span className={styles.routeName}>{item.title}</span>
-                <span className={styles.routeLocation}>{item.areaName}</span>
+              <div className="flex flex-col">
+                <span className="text-base font-bold text-gray-900">
+                  {item.title}
+                </span>
+                <span className="text-sm text-gray-500">{item.areaName}</span>
               </div>
             )}
           />
@@ -325,7 +328,7 @@ const RouteEcoCoursesStep = ({
         />
         <AddRouteButton onClick={onClickAddEcoCourse} />
       </div>
-      <div className={styles.buttonGroup}>
+      <div className="flex gap-2">
         <Button variant="light" onClick={onClickPrevious}>
           이전
         </Button>
@@ -365,7 +368,7 @@ const AccomodationStep = ({
     }
   };
   return (
-    <div className={styles.section}>
+    <div className="border border-gray-200 rounded-lg mt-4 p-4 flex flex-col gap-4">
       <h2>숙박 정보 입력</h2>
       <>
         {form.getValues().accomodation.map((item, index) => {
@@ -384,14 +387,13 @@ const AccomodationStep = ({
           );
         })}
       </>
-      <div className={styles.subSection}>
+      <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
         <Title order={6}>숙박 기간</Title>
         <Flex gap="md">
           <DatePickerInput
             leftSection={<IconCalendar size={18} stroke={1.5} />}
             type="range"
             placeholder="체크인 - 체크아웃"
-            label="숙박 기간"
             style={{ flex: 1 }}
             value={accomodationPeriod}
             onChange={(date) =>
@@ -417,8 +419,8 @@ const AccomodationStep = ({
                 className={
                   selectedAccomodation?.value &&
                   option.value === selectedAccomodation.value
-                    ? styles.activeCourseCard
-                    : styles.courseCard
+                    ? "bg-green-100 border-green-600"
+                    : ""
                 }
                 onClick={() => setSelectedAccomodation(option)}
               >
@@ -431,7 +433,7 @@ const AccomodationStep = ({
         </Flex>
       </div>
       <AddRouteButton buttonText="숙박 추가" onClick={onClickAddAccomodation} />
-      <div className={styles.buttonGroup}>
+      <div className="flex gap-2">
         <Button variant="light" onClick={onClickPrevious}>
           이전
         </Button>

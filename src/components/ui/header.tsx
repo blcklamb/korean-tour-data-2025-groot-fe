@@ -13,7 +13,6 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import LogoIcon from "./logo";
-import styles from "./ui.module.css";
 
 interface AppHeaderProps {
   title?: string;
@@ -45,8 +44,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   }, [showBackButton, isLogin]);
 
   return (
-    <AppShellHeader style={{ padding: "1rem 0rem" }}>
-      <div className={styles.headerWrap}>
+    <AppShellHeader>
+      <div className="flex justify-between items-center w-full max-w-md mx-auto h-full">
         {/* 왼쪽 영역 */}
         <Flex align="center" gap="xs">
           {showBackButton ? (
