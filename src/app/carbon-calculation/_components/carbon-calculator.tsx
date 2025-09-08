@@ -35,7 +35,7 @@ import {
   mockAccommodationOptions,
   mockLocationOptions,
 } from "./types";
-import { AccomodationItem } from "./accomodation-item";
+import { AccommodationItem } from "./accommodation-item";
 import { useRouter } from "next/navigation";
 
 const CarbonCalculator = () => {
@@ -47,7 +47,7 @@ const CarbonCalculator = () => {
     initialValues: {
       personnel: 1,
       routes: [],
-      accomodation: [],
+      accommodation: [],
     },
   });
   const route = useRouter();
@@ -66,7 +66,7 @@ const CarbonCalculator = () => {
         return 33;
       case "ROUTE+ECO_COURSES":
         return 66;
-      case "ACCOMODATION":
+      case "ACCOMMODATION":
         return 100;
       default:
         return 0;
@@ -115,12 +115,12 @@ const CarbonCalculator = () => {
         <Step name="ROUTE+ECO_COURSES">
           <RouteEcoCoursesStep
             form={form}
-            onClickNext={() => setStep("ACCOMODATION")}
+            onClickNext={() => setStep("ACCOMMODATION")}
             onClickPrevious={() => setStep("PERSONNEL")}
           />
         </Step>
-        <Step name="ACCOMODATION">
-          <AccomodationStep
+        <Step name="ACCOMMODATION">
+          <AccommodationStep
             form={form}
             onClickPrevious={() => setStep("ROUTE+ECO_COURSES")}
             onClickNext={goToMainPage}
@@ -340,29 +340,29 @@ const RouteEcoCoursesStep = ({
   );
 };
 
-interface AccomodationStepProps extends CommonFormProps {
+interface AccommodationStepProps extends CommonFormProps {
   onClickPrevious: () => void;
 }
 
-const AccomodationStep = ({
+const AccommodationStep = ({
   form,
   onClickPrevious,
   onClickNext,
-}: AccomodationStepProps) => {
-  const [accomodationPeriod, setAccomodationPeriod] = useState<
+}: AccommodationStepProps) => {
+  const [accommodationPeriod, setAccommodationPeriod] = useState<
     [Date | null, Date | null]
   >([null, null]);
-  const [selectedAccomodation, setSelectedAccomodation] =
+  const [selectedAccommodation, setSelectedAccommodation] =
     useState<ComboboxItem | null>(null);
 
-  const enableToGoNext = form.getValues().accomodation.length > 0;
+  const enableToGoNext = form.getValues().accommodation.length > 0;
 
-  const onClickAddAccomodation = () => {
-    if (selectedAccomodation) {
-      form.insertListItem("accomodation", {
-        accomodationTypeId: selectedAccomodation.value,
+  const onClickAddAccommodation = () => {
+    if (selectedAccommodation) {
+      form.insertListItem("accommodation", {
+        accommodationTypeId: selectedAccommodation.value,
       });
-      setSelectedAccomodation(null);
+      setSelectedAccommodation(null);
     } else {
       alert("숙박 유형을 선택해주세요.");
     }
@@ -371,18 +371,18 @@ const AccomodationStep = ({
     <div className="border border-gray-200 rounded-lg mt-4 p-4 flex flex-col gap-4">
       <h2>숙박 정보 입력</h2>
       <>
-        {form.getValues().accomodation.map((item, index) => {
+        {form.getValues().accommodation.map((item, index) => {
           const typeLabel =
             mockAccommodationOptions.find(
-              (opt) => opt.value === item.accomodationTypeId
-            )?.label || item.accomodationTypeId;
+              (opt) => opt.value === item.accommodationTypeId
+            )?.label || item.accommodationTypeId;
           return (
-            <AccomodationItem
+            <AccommodationItem
               key={index}
               checkInDate={item.checkInDate}
               checkOutDate={item.checkOutDate}
               typeLabel={typeLabel}
-              onDelete={() => form.removeListItem("accomodation", index)}
+              onDelete={() => form.removeListItem("accommodation", index)}
             />
           );
         })}
@@ -395,9 +395,9 @@ const AccomodationStep = ({
             type="range"
             placeholder="체크인 - 체크아웃"
             style={{ flex: 1 }}
-            value={accomodationPeriod}
+            value={accommodationPeriod}
             onChange={(date) =>
-              setAccomodationPeriod(date as [Date | null, Date | null])
+              setAccommodationPeriod(date as [Date | null, Date | null])
             }
           />
         </Flex>
@@ -417,12 +417,12 @@ const AccomodationStep = ({
                 withBorder
                 padding="xs"
                 className={
-                  selectedAccomodation?.value &&
-                  option.value === selectedAccomodation.value
+                  selectedAccommodation?.value &&
+                  option.value === selectedAccommodation.value
                     ? "bg-green-100 border-green-600"
                     : ""
                 }
-                onClick={() => setSelectedAccomodation(option)}
+                onClick={() => setSelectedAccommodation(option)}
               >
                 <Flex align="center" gap="xs" h={"100%"}>
                   <span>{option.label}</span>
@@ -432,7 +432,10 @@ const AccomodationStep = ({
           </Flex>
         </Flex>
       </div>
-      <AddRouteButton buttonText="숙박 추가" onClick={onClickAddAccomodation} />
+      <AddRouteButton
+        buttonText="숙박 추가"
+        onClick={onClickAddAccommodation}
+      />
       <div className="flex gap-2">
         <Button variant="light" onClick={onClickPrevious}>
           이전

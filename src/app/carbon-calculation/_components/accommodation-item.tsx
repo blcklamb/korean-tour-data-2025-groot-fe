@@ -2,19 +2,19 @@ import { Card, Flex, UnstyledButton } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import dayjs from "dayjs";
 
-interface AccomodationItemProps {
+interface AccommodationItemProps {
   checkInDate: string;
   checkOutDate: string;
   typeLabel: string;
   onDelete: () => void;
 }
 
-export const AccomodationItem = ({
+export const AccommodationItem = ({
   checkInDate,
   checkOutDate,
   typeLabel,
   onDelete,
-}: AccomodationItemProps) => {
+}: AccommodationItemProps) => {
   return (
     <Card padding="xs" className="bg-slate-50">
       <Flex justify="space-between" align="center">

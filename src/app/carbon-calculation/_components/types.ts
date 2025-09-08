@@ -3,7 +3,7 @@ import { ComboboxItem } from "@mantine/core";
 export type CarbonCalculationStep =
   | "PERSONNEL"
   | "ROUTE+ECO_COURSES"
-  | "ACCOMODATION";
+  | "ACCOMMODATION";
 
 export interface CarbonCalculatorFormValues {
   personnel: number;
@@ -14,8 +14,8 @@ export interface CarbonCalculatorFormValues {
     courseId?: number; // 생태 관광 코스 ID
     transportationTypeId: number;
   }[];
-  accomodation: {
-    accomodationTypeId: string;
+  accommodation: {
+    accommodationTypeId: string;
     checkInDate: string;
     checkOutDate: string;
   }[];
