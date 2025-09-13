@@ -1,4 +1,8 @@
-import { ComboboxItem } from "@mantine/core";
+export interface ComboboxItem {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
 
 export type CarbonCalculationStep =
   | "PERSONNEL"

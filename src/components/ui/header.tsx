@@ -1,14 +1,7 @@
 "use client";
 
 import { ROUTES } from "@/lib/routes";
-import {
-  AppShellHeader,
-  Avatar,
-  Button,
-  Flex,
-  Title,
-  UnstyledButton,
-} from "@mantine/core";
+import { Button } from "@/components/ui/button";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
@@ -44,46 +37,48 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   }, [showBackButton, isLogin]);
 
   return (
-    <AppShellHeader>
-      <div className="flex justify-between items-center w-full max-w-md mx-auto h-full">
+    <header className="w-full bg-white border-b border-gray-200">
+      <div className="flex justify-between items-center w-full max-w-md mx-auto h-16 px-4">
         {/* 왼쪽 영역 */}
-        <Flex align="center" gap="xs">
+        <div className="flex items-center gap-2">
           {showBackButton ? (
-            <UnstyledButton
-              style={{ paddingBlockStart: 6 }}
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onBackClick}
+              className="p-2"
             >
               <IconArrowLeft />
-            </UnstyledButton>
+            </Button>
           ) : (
-            <Flex gap="xs" align="center">
+            <div className="flex gap-2 items-center">
               <LogoIcon />
-              <Title order={3} c={"eco-green"}>
-                Groot
-              </Title>
-            </Flex>
+              <h3 className="text-xl font-bold text-green-600">Groot</h3>
+            </div>
           )}
-        </Flex>
+        </div>
 
         {/* 중앙 영역 - 페이지 타이틀 */}
         {title && (
-          <Flex
-            flex={1}
-            justify={"center"}
+          <div
+            className="flex-1 flex justify-center"
             style={{
               paddingInlineStart: DYNAMIC_PADDING,
             }}
           >
-            <Title order={4}>{title}</Title>
-          </Flex>
+            <h4 className="text-lg font-semibold">{title}</h4>
+          </div>
         )}
 
         {/* 오른쪽 영역 */}
-        <Flex align={"center"}>
+        <div className="flex items-center">
           {isLogin && (
-            <Avatar component="a" href={ROUTES.MY_PAGE}>
+            <a
+              href={ROUTES.MY_PAGE}
+              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold"
+            >
               {tempUser.name[0] || "U"}
-            </Avatar>
+            </a>
           )}
           {!isLogin && (
             <Button
@@ -95,8 +90,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               로그인
             </Button>
           )}
-        </Flex>
+        </div>
       </div>
-    </AppShellHeader>
+    </header>
   );
 };

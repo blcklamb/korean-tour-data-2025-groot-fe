@@ -11,16 +11,9 @@ import {
   useEcoTourCourses,
   useRecommendedEcoTours,
 } from "@/hooks/queries";
-import {
-  Button,
-  TextInput,
-  Stack,
-  Card,
-  Text,
-  Group,
-  Badge,
-  Loader,
-} from "@mantine/core";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 // 1. 위치 검색 예시
 function LocationSearchExample() {
@@ -38,63 +31,67 @@ function LocationSearchExample() {
   );
 
   return (
-    <Stack>
-      <TextInput
-        label="장소 검색"
-        placeholder="관광지명을 입력하세요"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">장소 검색</label>
+        <Input
+          placeholder="관광지명을 입력하세요"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {searchQuery.length > 2 ? (
         <div>
-          <Text fw={500} mb="sm">
-            검색 결과
-          </Text>
+          <h3 className="font-medium mb-3">검색 결과</h3>
           {searchLoading ? (
-            <Loader size="sm" />
+            <div className="flex justify-center">
+              <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
           ) : (
-            <Stack gap="xs">
+            <div className="space-y-2">
               {searchResults?.data.map((location) => (
-                <Card key={location.id} withBorder>
-                  <Text fw={500}>{location.name}</Text>
-                  <Text size="sm" c="dimmed">
-                    {location.address}
-                  </Text>
-                  <Badge variant="light">{location.category}</Badge>
+                <Card key={location.id} className="p-4">
+                  <h4 className="font-medium">{location.name}</h4>
+                  <p className="text-sm text-gray-500">{location.address}</p>
+                  <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mt-2">
+                    {location.category}
+                  </span>
                 </Card>
               ))}
-            </Stack>
+            </div>
           )}
         </div>
       ) : (
         <div>
-          <Text fw={500} mb="sm">
-            인기 관광지
-          </Text>
+          <h3 className="font-medium mb-3">인기 관광지</h3>
           {popularLoading ? (
-            <Loader size="sm" />
+            <div className="flex justify-center">
+              <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
           ) : (
-            <Stack gap="xs">
+            <div className="space-y-2">
               {popularLocations?.map((location) => (
-                <Card key={location.id} withBorder>
-                  <Text fw={500}>{location.name}</Text>
-                  <Text size="sm" c="dimmed">
-                    {location.address}
-                  </Text>
-                  <Group gap="xs">
-                    <Badge variant="light">{location.category}</Badge>
+                <Card key={location.id} className="p-4">
+                  <h4 className="font-medium">{location.name}</h4>
+                  <p className="text-sm text-gray-500">{location.address}</p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      {location.category}
+                    </span>
                     {location.rating && (
-                      <Badge color="yellow">⭐ {location.rating}</Badge>
+                      <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                        ⭐ {location.rating}
+                      </span>
                     )}
-                  </Group>
+                  </div>
                 </Card>
               ))}
-            </Stack>
+            </div>
           )}
         </div>
       )}
-    </Stack>
+    </div>
   );
 }
 
@@ -152,45 +149,45 @@ function CarbonCalculationExample() {
   };
 
   return (
-    <Stack>
-      <Group>
-        <Text fw={500}>탄소 계산</Text>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <h3 className="font-medium">탄소 계산</h3>
         <Button
           onClick={handleCalculateCarbon}
-          loading={createCalculation.isPending}
+          disabled={createCalculation.isPending}
         >
-          새 계산 만들기
+          {createCalculation.isPending ? "계산 중..." : "새 계산 만들기"}
         </Button>
-      </Group>
+      </div>
 
       <div>
-        <Text fw={500} mb="sm">
-          최근 계산 기록
-        </Text>
+        <h3 className="font-medium mb-3">최근 계산 기록</h3>
         {isLoading ? (
-          <Loader size="sm" />
+          <div className="flex justify-center">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
         ) : (
-          <Stack gap="xs">
+          <div className="space-y-2">
             {calculations?.data.map((calc) => (
-              <Card key={calc.id} withBorder>
-                <Group justify="space-between">
+              <Card key={calc.id} className="p-4">
+                <div className="flex justify-between items-start">
                   <div>
-                    <Text fw={500}>여행 기록</Text>
-                    <Text size="sm" c="dimmed">
+                    <h4 className="font-medium">여행 기록</h4>
+                    <p className="text-sm text-gray-500">
                       경로 {calc.routes.length}개, 숙박{" "}
                       {calc.accommodations.length}곳
-                    </Text>
+                    </p>
                   </div>
-                  <Badge color="green" size="lg">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-lg font-medium">
                     {calc.totalCarbon.toFixed(1)}kg CO₂
-                  </Badge>
-                </Group>
+                  </span>
+                </div>
               </Card>
             ))}
-          </Stack>
+          </div>
         )}
       </div>
-    </Stack>
+    </div>
   );
 }
 
@@ -202,54 +199,53 @@ function UserProgressExample() {
     useUserProgress(userId);
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex justify-center">
+        <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (
-    <Stack>
-      <Card withBorder>
-        <Text fw={500} mb="sm">
-          사용자 정보
-        </Text>
-        <Text>이름: {user?.name}</Text>
-        <Text>레벨: {stats?.level}</Text>
-        <Text>포인트: {stats?.totalPoints}</Text>
-        <Text>탄소 절약량: {stats?.carbonSaved}kg CO₂</Text>
+    <div className="space-y-4">
+      <Card className="p-4">
+        <h3 className="font-medium mb-3">사용자 정보</h3>
+        <p>이름: {user?.name}</p>
+        <p>레벨: {stats?.level}</p>
+        <p>포인트: {stats?.totalPoints}</p>
+        <p>탄소 절약량: {stats?.carbonSaved}kg CO₂</p>
       </Card>
 
-      <Card withBorder>
-        <Text fw={500} mb="sm">
-          배지 ({stats?.badgesCount}개)
-        </Text>
-        <Group gap="xs">
+      <Card className="p-4">
+        <h3 className="font-medium mb-3">배지 ({stats?.badgesCount}개)</h3>
+        <div className="flex gap-2 flex-wrap">
           {badges
             ?.filter((badge) => badge.unlocked)
             .map((badge) => (
-              <Badge key={badge.id} variant="filled">
+              <span
+                key={badge.id}
+                className="bg-blue-600 text-white px-2 py-1 rounded text-sm"
+              >
                 {badge.icon} {badge.name}
-              </Badge>
+              </span>
             ))}
-        </Group>
+        </div>
       </Card>
 
-      <Card withBorder>
-        <Text fw={500} mb="sm">
-          진행 중인 미션
-        </Text>
-        <Stack gap="xs">
+      <Card className="p-4">
+        <h3 className="font-medium mb-3">진행 중인 미션</h3>
+        <div className="space-y-2">
           {activeMissions?.map((mission) => (
-            <div key={mission.id}>
-              <Group justify="space-between">
-                <Text size="sm">{mission.title}</Text>
-                <Badge variant="light">
-                  {mission.progress}/{mission.target}
-                </Badge>
-              </Group>
+            <div key={mission.id} className="flex justify-between items-center">
+              <p className="text-sm">{mission.title}</p>
+              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                {mission.progress}/{mission.target}
+              </span>
             </div>
           ))}
-        </Stack>
+        </div>
       </Card>
-    </Stack>
+    </div>
   );
 }
 
@@ -268,57 +264,65 @@ function EcoTourRecommendationExample() {
   });
 
   return (
-    <Stack>
+    <div className="space-y-4">
       <div>
-        <Text fw={500} mb="sm">
-          맞춤 추천 코스
-        </Text>
+        <h3 className="font-medium mb-3">맞춤 추천 코스</h3>
         {recommendedLoading ? (
-          <Loader size="sm" />
+          <div className="flex justify-center">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
         ) : (
-          <Stack gap="xs">
+          <div className="space-y-2">
             {recommended?.map((course) => (
-              <Card key={course.id} withBorder>
-                <Text fw={500}>{course.title}</Text>
-                <Text size="sm" c="dimmed" lineClamp={2}>
+              <Card key={course.id} className="p-4">
+                <h4 className="font-medium">{course.title}</h4>
+                <p className="text-sm text-gray-500 line-clamp-2 mt-1">
                   {course.description}
-                </Text>
-                <Group gap="xs" mt="xs">
-                  <Badge variant="light">{course.difficulty}</Badge>
-                  <Badge color="green">{course.duration}분</Badge>
-                  <Badge color="blue">-{course.carbonReduction}kg CO₂</Badge>
-                </Group>
+                </p>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                    {course.difficulty}
+                  </span>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                    {course.duration}분
+                  </span>
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    -{course.carbonReduction}kg CO₂
+                  </span>
+                </div>
               </Card>
             ))}
-          </Stack>
+          </div>
         )}
       </div>
 
       <div>
-        <Text fw={500} mb="sm">
-          쉬운 난이도 코스
-        </Text>
+        <h3 className="font-medium mb-3">쉬운 난이도 코스</h3>
         {allLoading ? (
-          <Loader size="sm" />
+          <div className="flex justify-center">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
         ) : (
-          <Stack gap="xs">
+          <div className="space-y-2">
             {allCourses?.data.map((course) => (
-              <Card key={course.id} withBorder>
-                <Group justify="space-between">
+              <Card key={course.id} className="p-4">
+                <div className="flex justify-between items-start">
                   <div>
-                    <Text fw={500}>{course.title}</Text>
-                    <Text size="sm" c="dimmed">
+                    <h4 className="font-medium">{course.title}</h4>
+                    <p className="text-sm text-gray-500">
                       ⭐ {course.rating} ({course.reviewCount}개 리뷰)
-                    </Text>
+                    </p>
                   </div>
-                  <Badge color="green">{course.duration}분</Badge>
-                </Group>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                    {course.duration}분
+                  </span>
+                </div>
               </Card>
             ))}
-          </Stack>
+          </div>
         )}
       </div>
-    </Stack>
+    </div>
   );
 }
 
@@ -351,22 +355,20 @@ export default function ApiLayerExample() {
 
   return (
     <div>
-      <Text size="xl" fw={700} mb="lg">
-        API Layer 사용 예시
-      </Text>
+      <h1 className="text-2xl font-bold mb-6">API Layer 사용 예시</h1>
 
-      <Group mb="md">
+      <div className="flex gap-2 mb-4">
         {tabs.map((tab) => (
           <Button
             key={tab.key}
-            variant={activeTab === tab.key ? "filled" : "light"}
+            variant={activeTab === tab.key ? "default" : "outline"}
             onClick={() => setActiveTab(tab.key)}
             size="sm"
           >
             {tab.label}
           </Button>
         ))}
-      </Group>
+      </div>
 
       {tabs.find((tab) => tab.key === activeTab)?.component}
     </div>

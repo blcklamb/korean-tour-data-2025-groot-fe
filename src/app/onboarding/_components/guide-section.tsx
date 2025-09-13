@@ -6,7 +6,7 @@ import {
   IconCamera,
   IconAward,
 } from "@tabler/icons-react";
-import { Button } from "@mantine/core";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const ONBOARDING_STEPS = [

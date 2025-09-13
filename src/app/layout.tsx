@@ -1,42 +1,12 @@
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
 import "./globals.css";
 
 import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
 import { QueryProvider } from "@/lib/query-client";
-import {
-  AppShell,
-  AppShellMain,
-  ColorSchemeScript,
-  Container,
-  MantineProvider,
-  createTheme,
-  mantineHtmlProps,
-} from "@mantine/core";
 
 export const metadata = {
   title: "Groot | 관광데이터 활용 공모전 2025",
   description: "지속 가능한 생태관광 인증 플랫폼",
 };
-
-const theme = createTheme({
-  fontFamily: "Pretendard, sans-serif",
-  primaryColor: "eco-green",
-  colors: {
-    "eco-green": [
-      "#eafcf1",
-      "#d9f6e3",
-      "#b1ebc7",
-      "#87e0a7",
-      "#64d78d",
-      "#4ed17c",
-      "#41ce73",
-      "#32b661",
-      "#27a154",
-      "#158c46",
-    ],
-  },
-});
 
 export default function RootLayout({
   children,
@@ -44,21 +14,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" {...mantineHtmlProps}>
-      <head>
-        <ColorSchemeScript />
-      </head>
+    <html lang="en">
+      <head />
       <body>
         <QueryProvider>
-          <MantineProvider theme={theme}>
-            <AppShell padding="md" header={{ height: 60 }}>
-              <AppShellMain>
-                <Container maw={"30rem"}>{children}</Container>
-                <Container h={"5rem"} />
-              </AppShellMain>
-              <BottomFixedNavigator />
-            </AppShell>
-          </MantineProvider>
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-1 p-4">
+              <div className="max-w-lg mx-auto">{children}</div>
+              <div className="h-20" />
+            </main>
+            <BottomFixedNavigator />
+          </div>
         </QueryProvider>
       </body>
     </html>

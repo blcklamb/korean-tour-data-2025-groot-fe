@@ -1,36 +1,28 @@
-import { Card, Flex, SimpleGrid } from "@mantine/core";
+import { Card } from "@/components/ui/card";
 import { TransportSelectProps } from "./types";
 
 export function TransportSelect(props: TransportSelectProps) {
   const { options, selected, onSelect, getIcon, getLabel } = props;
   return (
-    <SimpleGrid cols={3} spacing="xs">
+    <div className="grid grid-cols-3 gap-2">
       {options.map((item) => (
         <Card
           key={item.id}
-          withBorder
-          padding="xs"
-          className={`cursor-pointer hover:bg-gray-100 ${
+          className={`cursor-pointer hover:bg-gray-100 transition-colors p-3 ${
             item.value && selected?.value && item.value === selected.value
-              ? "bg-green-100 border-green-600"
+              ? "bg-eco-green-100 border-eco-green-600"
               : ""
           }`}
           onClick={() => onSelect(item)}
         >
-          <Flex
-            direction={"column"}
-            justify={"center"}
-            align="center"
-            gap="xs"
-            h={"100%"}
-          >
+          <div className="flex flex-col justify-center items-center gap-2 h-full">
             <span>{getIcon ? getIcon(item) : item.icon}</span>
-            <span style={{ fontSize: "12px" }}>
+            <span className="text-xs text-center">
               {getLabel ? getLabel(item) : item.label || item.value}
             </span>
-          </Flex>
+          </div>
         </Card>
       ))}
-    </SimpleGrid>
+    </div>
   );
 }

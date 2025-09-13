@@ -1,30 +1,28 @@
-import { Card, Flex } from "@mantine/core";
+import { Card } from "@/components/ui/card";
 import { CourseSelectProps } from "./types";
 
 export function CourseSelect(props: CourseSelectProps) {
   const { options, selected, onSelect, getIcon, getLabel } = props;
   return (
-    <Flex direction={"column"} gap="xs">
+    <div className="flex flex-col gap-2">
       {options.map((item) => (
         <Card
           key={item.id}
-          withBorder
-          padding={"4px"}
-          className={
+          className={`cursor-pointer p-1 transition-colors ${
             selected?.value && item.value === selected.value
-              ? "bg-green-100 border-green-600"
+              ? "bg-eco-green-100 border-eco-green-600"
               : ""
-          }
+          }`}
           onClick={() => onSelect(item)}
         >
-          <Flex align="center" gap="xs" h={"100%"}>
+          <div className="flex items-center gap-2 h-full">
             <span>{getIcon ? getIcon(item) : item.thumbnailUrl}</span>
-            <span style={{ fontSize: "12px" }}>
+            <span className="text-xs">
               {getLabel ? getLabel(item) : item.title}
             </span>
-          </Flex>
+          </div>
         </Card>
       ))}
-    </Flex>
+    </div>
   );
 }
