@@ -11,6 +11,17 @@
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 3.9%;
 
+  --eco-green-50: 143 75% 95.3%;
+  --eco-green-100: 142 72% 89.8%;
+  --eco-green-200: 142 68% 80.6%;
+  --eco-green-300: 142 64% 70.6%;
+  --eco-green-400: 142 62% 62.7%;
+  --eco-green-500: 141 59% 56%; /* #4ED17C */
+  --eco-green-600: 141 59% 48.2%;
+  --eco-green-700: 141 59% 39.4%;
+  --eco-green-800: 141 59% 30.6%;
+  --eco-green-900: 141 59% 20.6%;
+
   /* 👉 eco-green을 기본 Primary로 설정 (#4ED17C 근사치) */
   --primary: 141 59% 56%;
   --primary-foreground: 0 0% 98%;
@@ -84,6 +95,19 @@
 
 /* Tailwind v4 @theme inline 매핑 (CSS 변수 → Tailwind 토큰) */
 @theme inline {
+  --color-eco-green: hsl(var(--primary));
+  --color-eco-green-50: hsl(var(--eco-green-50));
+  --color-eco-green-100: hsl(var(--eco-green-100));
+  --color-eco-green-200: hsl(var(--eco-green-200));
+  --color-eco-green-300: hsl(var(--eco-green-300));
+  --color-eco-green-400: hsl(var(--eco-green-400));
+  --color-eco-green-500: hsl(var(--eco-green-500));
+  --color-eco-green-600: hsl(var(--eco-green-600));
+  --color-eco-green-700: hsl(var(--eco-green-700));
+  --color-eco-green-800: hsl(var(--eco-green-800));
+  --color-eco-green-900: hsl(var(--eco-green-900));
+
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));

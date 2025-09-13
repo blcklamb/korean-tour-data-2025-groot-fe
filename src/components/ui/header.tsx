@@ -38,7 +38,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <header className="w-full bg-white border-b border-gray-200">
-      <div className="flex justify-between items-center w-full max-w-md mx-auto h-16 px-4">
+      <div className="flex justify-between items-center w-full px-2 mx-auto h-16 ">
         {/* 왼쪽 영역 */}
         <div className="flex items-center gap-2">
           {showBackButton ? (
