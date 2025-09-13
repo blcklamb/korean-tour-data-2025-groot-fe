@@ -10,6 +10,7 @@ export * from "./user";
 // 인증 관련 API (필요시 추가)
 export const authApi = {
   // 로그인
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   login: (credentials: { email: string; password: string }) => {
     // 실제 구현 시 추가
     return Promise.resolve({ token: "mock-token", user: {} });
