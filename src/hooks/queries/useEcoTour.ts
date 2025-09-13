@@ -1,24 +1,25 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { ecoTourApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import { EcoTourCourse } from "@/types";
+import { EcoTourCourse, EcoTourCourseSummary } from "@/types";
 import { PaginationParams, PaginatedResponse, ApiError } from "@/types/api";
 
 // 에코 투어 코스 조회 관련 Query Hooks
 export const useEcoTourCourses = (
-  params?: PaginationParams & {
-    difficulty?: EcoTourCourse["difficulty"];
-    maxDuration?: number;
-    minRating?: number;
-  },
+  params?: Parameters<(typeof ecoTourApi)["getCourses"]>,
   options?: Omit<
-    UseQueryOptions<PaginatedResponse<EcoTourCourse>, ApiError>,
+    UseQueryOptions<EcoTourCourseSummary[], ApiError>,
     "queryKey" | "queryFn"
   >
 ) => {
   return useQuery({
     queryKey: queryKeys.ecoTours.list(params),
-    queryFn: () => ecoTourApi.getCourses(params).then((res) => res.data),
+    queryFn: () => {
+      const [areaId, sigunguId, categoryId, tags] = params ?? [];
+      return ecoTourApi
+        .getCourses(areaId, sigunguId, categoryId, tags)
+        .then((res) => res.data);
+    },
     ...options,
   });
 };
@@ -104,19 +105,6 @@ export const useSearchEcoTours = (
     enabled: !!query && query.length > 0,
     staleTime: 30 * 1000, // 검색 결과는 30초 동안 신선함
     ...options,
-  });
-};
-
-// 에코 투어 관련 커스텀 hooks
-export const useEcoTourFilters = (initialFilters?: {
-  difficulty?: EcoTourCourse["difficulty"];
-  maxDuration?: number;
-  minRating?: number;
-  page?: number;
-  limit?: number;
-}) => {
-  return useEcoTourCourses(initialFilters, {
-    placeholderData: (previousData) => previousData, // 필터 변경 시 이전 데이터 유지
   });
 };
 

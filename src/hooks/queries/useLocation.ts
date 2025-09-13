@@ -5,13 +5,13 @@ import {
 } from "@tanstack/react-query";
 import { locationApi, categoryApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import { Location, Category } from "@/types";
+import { Location, Category, LocationArea } from "@/types";
 import { PaginationParams, PaginatedResponse, ApiError } from "@/types/api";
 
 // 위치 관련 Query Hooks
 export const useLocations = (
   options?: Omit<
-    UseQueryOptions<PaginatedResponse<Location>, ApiError>,
+    UseQueryOptions<LocationArea[], ApiError>,
     "queryKey" | "queryFn"
   >
 ) => {

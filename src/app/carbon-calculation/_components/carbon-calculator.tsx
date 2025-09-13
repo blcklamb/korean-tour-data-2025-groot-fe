@@ -1,6 +1,5 @@
 "use client";
 
-import { mockEcoTourRoutes, mockTransportOptions } from "@/app/data";
 import { AppHeader } from "@/components/ui/header";
 import LogoIcon from "@/components/ui/logo";
 import { useFunnel } from "@/hooks/useFunnel";
@@ -20,20 +19,17 @@ import {
 import { useForm, UseFormReturn, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowRight, IconLocation, IconMapPin } from "@tabler/icons-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import * as z from "zod";
 import { TransportSelect } from "./transport-select";
 import { CourseSelect } from "./course-select";
 import { AddRouteButton } from "./add-route-button";
 import { RouteItem } from "./route-item";
-import {
-  CarbonCalculationStep,
-  mockAccommodationOptions,
-  mockLocationOptions,
-} from "./types";
+import { CarbonCalculationStep, mockAccommodationOptions } from "./types";
 import { AccommodationItem } from "./accommodation-item";
 import { useRouter } from "next/navigation";
-import { useLocations } from "@/hooks/queries";
+import { useEcoTourCourses, useLocations } from "@/hooks/queries";
+import { useGetTransportationTypes } from "@/hooks/queries/useCalculator";
 
 // Form schema using zod
 const carbonCalculatorSchema = z.object({
@@ -94,51 +90,54 @@ const CarbonCalculator = () => {
     <div className="w-full">
       <AppHeader
         showBackButton
+        onBackClick={() => route.replace("/")}
         title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
       />
-      <div>
-        <div className="flex items-center gap-2">
-          <LogoIcon />
-          <div className="text-2xl font-bold">그루미터</div>
+      <div className="p-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <LogoIcon />
+            <div className="text-2xl font-bold">그루미터</div>
+          </div>
+          <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
+          <div className="flex gap-1 mt-2 w-full">
+            <Progress
+              value={getStepProgress(step) > 0 ? 100 : 0}
+              className="flex-1 h-1"
+            />
+            <Progress
+              value={getStepProgress(step) >= 66 ? 100 : 0}
+              className="flex-1 h-1"
+            />
+            <Progress
+              value={getStepProgress(step) > 66 ? 100 : 0}
+              className="flex-1 h-1"
+            />
+          </div>
         </div>
-        <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
+        <Funnel>
+          <Step name="PERSONNEL">
+            <PersonnelStep
+              form={form}
+              onClickNext={() => setStep("ROUTE+ECO_COURSES")}
+            />
+          </Step>
+          <Step name="ROUTE+ECO_COURSES">
+            <RouteEcoCoursesStep
+              form={form}
+              onClickNext={() => setStep("ACCOMMODATION")}
+              onClickPrevious={() => setStep("PERSONNEL")}
+            />
+          </Step>
+          <Step name="ACCOMMODATION">
+            <AccommodationStep
+              form={form}
+              onClickPrevious={() => setStep("ROUTE+ECO_COURSES")}
+              onClickNext={goToMainPage}
+            />
+          </Step>
+        </Funnel>
       </div>
-      <div className="flex gap-1 mt-2 w-full">
-        <Progress
-          value={getStepProgress(step) > 0 ? 100 : 0}
-          className="flex-1 h-1"
-        />
-        <Progress
-          value={getStepProgress(step) >= 66 ? 100 : 0}
-          className="flex-1 h-1"
-        />
-        <Progress
-          value={getStepProgress(step) > 66 ? 100 : 0}
-          className="flex-1 h-1"
-        />
-      </div>
-      <Funnel>
-        <Step name="PERSONNEL">
-          <PersonnelStep
-            form={form}
-            onClickNext={() => setStep("ROUTE+ECO_COURSES")}
-          />
-        </Step>
-        <Step name="ROUTE+ECO_COURSES">
-          <RouteEcoCoursesStep
-            form={form}
-            onClickNext={() => setStep("ACCOMMODATION")}
-            onClickPrevious={() => setStep("PERSONNEL")}
-          />
-        </Step>
-        <Step name="ACCOMMODATION">
-          <AccommodationStep
-            form={form}
-            onClickPrevious={() => setStep("ROUTE+ECO_COURSES")}
-            onClickNext={goToMainPage}
-          />
-        </Step>
-      </Funnel>
     </div>
   );
 };
@@ -205,8 +204,39 @@ const RouteEcoCoursesStep = ({
 
   const enableToGoNext = routeFields.length > 0;
 
-  const { data } = useLocations();
-  console.log("locations data", data);
+  const { data: locationData } = useLocations();
+  const { data: ecoTourCourseData } = useEcoTourCourses();
+  const { data: transportTypeData } = useGetTransportationTypes();
+
+  const processedLocationOptions = useMemo(
+    () =>
+      (locationData || []).map((location) => ({
+        value: String(location.id),
+        label: location.areaName,
+      })),
+    [locationData]
+  );
+
+  const processedEcoTourRoutes = useMemo(
+    () =>
+      (ecoTourCourseData || []).map((course) => ({
+        ...course,
+        value: String(course.id),
+        label: course.title,
+      })),
+    [ecoTourCourseData]
+  );
+
+  const processedTransportOptions = useMemo(
+    () =>
+      (transportTypeData || []).map((type) => ({
+        id: type.id,
+        value: String(type.id),
+        label: type.name,
+        icon: type.icon,
+      })),
+    [transportTypeData]
+  );
 
   const onClickAddCustomRoute = () => {
     if (
@@ -249,22 +279,22 @@ const RouteEcoCoursesStep = ({
             <RouteItem
               key={route.id}
               departureCityName={
-                mockLocationOptions.filter(
+                processedLocationOptions.filter(
                   (option) => option.value === String(route.departureLocationId)
                 )[0]?.label
               }
               arrivalCityName={
-                mockLocationOptions.filter(
+                processedLocationOptions.filter(
                   (option) => option.value === String(route.arrivalLocationId)
                 )[0]?.label
               }
               courseName={
-                mockEcoTourRoutes.filter(
+                processedEcoTourRoutes.filter(
                   (course) => course.value === String(route.courseId)
                 )[0]?.title
               }
               transportIcon={
-                mockTransportOptions.filter(
+                processedTransportOptions.filter(
                   (option) =>
                     option.value === String(route.transportationTypeId)
                 )[0]?.icon || ""
@@ -290,7 +320,7 @@ const RouteEcoCoursesStep = ({
               <SelectValue placeholder="출발지" />
             </SelectTrigger>
             <SelectContent>
-              {mockLocationOptions.map((option) => (
+              {processedLocationOptions?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -306,7 +336,7 @@ const RouteEcoCoursesStep = ({
               <SelectValue placeholder="도착지" />
             </SelectTrigger>
             <SelectContent>
-              {mockLocationOptions.map((option) => (
+              {processedLocationOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -316,7 +346,7 @@ const RouteEcoCoursesStep = ({
         </div>
         <h6 className="text-base font-medium">교통 수단</h6>
         <TransportSelect
-          options={mockTransportOptions}
+          options={processedTransportOptions}
           selected={
             selectedCustomRouteTransport
               ? { value: selectedCustomRouteTransport, label: "" }
@@ -337,7 +367,7 @@ const RouteEcoCoursesStep = ({
         <h6 className="text-base font-medium">코스</h6>
         <div className="max-h-40 overflow-y-auto">
           <CourseSelect
-            options={mockEcoTourRoutes}
+            options={processedEcoTourRoutes}
             selected={
               selectedEcoCourse ? { value: selectedEcoCourse, label: "" } : null
             }
@@ -361,7 +391,7 @@ const RouteEcoCoursesStep = ({
         </div>
         <h6 className="text-base font-medium">교통 수단</h6>
         <TransportSelect
-          options={mockTransportOptions}
+          options={processedTransportOptions}
           selected={
             selectedEcoCourseTransport
               ? { value: selectedEcoCourseTransport, label: "" }

@@ -1,31 +1,29 @@
 import { apiClient } from "./client";
-import { EcoTourCourse } from "@/types";
+import { EcoTourCourse, EcoTourCourseSummary } from "@/types";
 import { PaginationParams, PaginatedResponse } from "@/types/api";
 
 // 에코 투어 코스 관련 API
 export const ecoTourApi = {
   // 모든 에코 투어 코스 조회
   getCourses: (
-    params?: PaginationParams & {
-      difficulty?: EcoTourCourse["difficulty"];
-      maxDuration?: number;
-      minRating?: number;
-    }
+    areaId?: number,
+    sigunguId?: number,
+    categoryId?: number,
+    tags?: string[]
   ) => {
     const searchParams = new URLSearchParams();
+    if (areaId) searchParams.append("areaId", areaId.toString());
+    if (sigunguId) searchParams.append("sigunguId", sigunguId.toString());
+    if (categoryId) searchParams.append("categoryId", categoryId.toString());
+    if (tags && tags.length > 0) {
+      tags.forEach((tag) => searchParams.append("tags", tag));
+    }
 
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-    if (params?.difficulty)
-      searchParams.append("difficulty", params.difficulty);
-    if (params?.maxDuration)
-      searchParams.append("maxDuration", params.maxDuration.toString());
-    if (params?.minRating)
-      searchParams.append("minRating", params.minRating.toString());
+    const queryString = searchParams.toString();
+    const endpoint = queryString ? `/courses?${queryString}` : `/courses`;
 
-    return apiClient.get<PaginatedResponse<EcoTourCourse>>(
-      `/eco-tours?${searchParams.toString()}`
-    );
+    return apiClient.get<EcoTourCourseSummary[]>(endpoint);
+    //
   },
 
   // 특정 에코 투어 코스 조회

@@ -1,14 +1,12 @@
 import { apiClient } from "./client";
-import { Location, Category } from "@/types";
+import { Location, Category, LocationArea } from "@/types";
 import { PaginationParams, PaginatedResponse } from "@/types/api";
 
 // 위치/관광지 관련 API
 export const locationApi = {
   // 시도 목록 조회
   getLocations: () => {
-    return apiClient.get<PaginatedResponse<Location>>(
-      `/courses/locations/areas`
-    );
+    return apiClient.get<LocationArea[]>(`/courses/locations/areas`);
   },
 
   // 특정 위치 조회

@@ -1,3 +1,38 @@
+// 시도 목록 조회
+export interface LocationArea {
+  id: number;
+  areaCode: number;
+  areaName: string;
+}
+
+// 생태 관광 코스 목록 조회
+export interface EcoTourCourseSummary {
+  id: number;
+  title: string;
+  thumbnailUrl: string;
+  areaName: string;
+  sigunguName: string;
+  spots: {
+    id: number;
+    title: string;
+    thumbnailUrl: string;
+    tags: string[];
+    carbonEmissionPerPerson: number;
+  }[];
+  totalCarbonEmission: number;
+  viewCount: number;
+  likeCount: number;
+  isLiked: boolean;
+}
+
+export interface TransportationType {
+  id: number;
+  name: string;
+  type: string;
+  carbonEmissionPerKm: number;
+  icon: string;
+}
+
 // 위치/관광지 관련 타입
 export interface Location {
   id: string;
