@@ -3,6 +3,7 @@ import "@mantine/dates/styles.css";
 import "./globals.css";
 
 import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
+import { QueryProvider } from "@/lib/query-client";
 import {
   AppShell,
   AppShellMain,
@@ -48,15 +49,17 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider theme={theme}>
-          <AppShell padding="md" header={{ height: 60 }}>
-            <AppShellMain>
-              <Container maw={"30rem"}>{children}</Container>
-              <Container h={"5rem"} />
-            </AppShellMain>
-            <BottomFixedNavigator />
-          </AppShell>
-        </MantineProvider>
+        <QueryProvider>
+          <MantineProvider theme={theme}>
+            <AppShell padding="md" header={{ height: 60 }}>
+              <AppShellMain>
+                <Container maw={"30rem"}>{children}</Container>
+                <Container h={"5rem"} />
+              </AppShellMain>
+              <BottomFixedNavigator />
+            </AppShell>
+          </MantineProvider>
+        </QueryProvider>
       </body>
     </html>
   );

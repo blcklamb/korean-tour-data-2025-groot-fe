@@ -37,6 +37,7 @@ import {
 } from "./types";
 import { AccommodationItem } from "./accommodation-item";
 import { useRouter } from "next/navigation";
+import { useLocations } from "@/hooks/queries";
 
 const CarbonCalculator = () => {
   const [Funnel, Step, step, setStep] =
@@ -183,6 +184,9 @@ const RouteEcoCoursesStep = ({
     useState<ComboboxItem | null>(null);
 
   const enableToGoNext = form.getValues().routes.length > 0;
+
+  const { data } = useLocations();
+  console.log("locations data", data);
 
   const onClickAddCustomRoute = () => {
     if (
