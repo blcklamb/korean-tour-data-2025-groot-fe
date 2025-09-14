@@ -38,6 +38,9 @@ export const queryKeys = {
     accommodation: () => [...queryKeys.carbon.all, "accommodation"] as const,
     savings: (userId: string) =>
       [...queryKeys.carbon.all, "savings", userId] as const,
+    sessions: () => [...queryKeys.carbon.all, "sessions"] as const,
+    session: (sessionId: string) =>
+      [...queryKeys.carbon.sessions(), sessionId] as const,
   },
 
   // 에코 투어 코스 관련 키

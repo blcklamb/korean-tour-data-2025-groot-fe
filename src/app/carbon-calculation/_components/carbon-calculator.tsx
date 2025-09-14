@@ -29,11 +29,18 @@ import { RouteItem } from "./route-item";
 import { CarbonCalculationStep } from "./types";
 import { AccommodationItem } from "./accommodation-item";
 import { useRouter } from "next/navigation";
-import { useCombinedOptions, useGetAccommodationTypes } from "@/hooks/queries";
+import {
+  useCombinedOptions,
+  useCreateCarbonSession,
+  useGetAccommodationTypes,
+  useSaveAccommodations,
+  useSaveRoutes,
+} from "@/hooks/queries";
 import { DatePicker } from "@/components/ui/date-picker";
 
 // Form schema using zod
 const carbonCalculatorSchema = z.object({
+  sessionId: z.uuid(),
   personnel: z.number().min(1, "인원수는 1명 이상이어야 합니다"),
   routes: z.array(
     z.object({
@@ -46,8 +53,8 @@ const carbonCalculatorSchema = z.object({
   accommodation: z.array(
     z.object({
       accommodationTypeId: z.number(),
-      checkInDate: z.date().optional(),
-      checkOutDate: z.date().optional(),
+      checkInDate: z.date(),
+      checkOutDate: z.date(),
     })
   ),
 });
@@ -153,6 +160,25 @@ interface CommonFormProps {
 type PersonnelStepProps = CommonFormProps;
 
 const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
+  const createCarbonSession = useCreateCarbonSession();
+
+  const onClickNextButton = () => {
+    createCarbonSession.mutate(
+      { participantCount: form.getValues().personnel },
+      {
+        onSuccess: (data) => {
+          console.log("Created session:", data);
+          form.setValue("sessionId", data.sessionId);
+          onClickNext();
+        },
+        onError: (error) => {
+          console.error("Error creating session:", error);
+          alert("세션 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+        },
+      }
+    );
+  };
+
   return (
     <div className="border border-gray-200 rounded-lg mt-4 p-4 flex flex-col gap-4">
       <div className="text-base font-semibold">인원수 입력</div>
@@ -170,7 +196,7 @@ const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
         />
       </div>
       <div className="flex gap-2">
-        <Button onClick={onClickNext}>다음</Button>
+        <Button onClick={onClickNextButton}>다음</Button>
       </div>
     </div>
   );
@@ -193,6 +219,52 @@ const RouteEcoCoursesStep = ({
   const [selectedEcoCourse, setSelectedEcoCourse] = useState<string>("");
   const [selectedEcoCourseTransport, setSelectedEcoCourseTransport] =
     useState<string>("");
+
+  const saveRoutes = useSaveRoutes({});
+
+  const onClickNextButton = () => {
+    const sessionId = form.getValues().sessionId;
+    const routes = form.getValues().routes;
+
+    if (!sessionId) {
+      alert("세션 ID가 없습니다. 처음부터 다시 시도해주세요.");
+      return;
+    }
+
+    if (routes.length === 0) {
+      alert("최소 하나 이상의 경로를 추가해야 합니다.");
+      return;
+    }
+
+    saveRoutes.mutate(
+      {
+        sessionId,
+        data: {
+          routes: routes.map((route, index) => ({
+            departureLocationId: route.departureLocationId
+              ? Number(route.departureLocationId)
+              : undefined,
+            arrivalLocationId: route.arrivalLocationId
+              ? Number(route.arrivalLocationId)
+              : undefined,
+            courseId: route.courseId ? Number(route.courseId) : undefined,
+            transportationTypeId: Number(route.transportationTypeId),
+            orderIndex: index + 1,
+          })),
+        },
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Routes saved:", data);
+          onClickNext();
+        },
+        onError: (error) => {
+          console.error("Error saving routes:", error);
+          alert("경로 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+        },
+      }
+    );
+  };
 
   const {
     fields: routeFields,
@@ -394,7 +466,7 @@ const RouteEcoCoursesStep = ({
             <Button variant="outline" onClick={onClickPrevious}>
               이전
             </Button>
-            <Button disabled={!enableToGoNext} onClick={onClickNext}>
+            <Button disabled={!enableToGoNext} onClick={onClickNextButton}>
               다음
             </Button>
           </div>
@@ -420,7 +492,10 @@ const AccommodationStep = ({
     number | null
   >(null);
 
+  const router = useRouter();
+
   const { data: accommodationTypes } = useGetAccommodationTypes();
+  const saveAccommodations = useSaveAccommodations({});
 
   const {
     fields: accommodationFields,
@@ -435,6 +510,10 @@ const AccommodationStep = ({
 
   const onClickAddAccommodation = () => {
     if (selectedAccommodationId) {
+      if (!accommodationPeriod[0] || !accommodationPeriod[1]) {
+        alert("숙박 기간을 모두 선택해주세요.");
+        return;
+      }
       appendAccommodation({
         accommodationTypeId: selectedAccommodationId,
         checkInDate: accommodationPeriod[0],
@@ -445,6 +524,46 @@ const AccommodationStep = ({
       return;
     }
     alert("숙박 유형을 선택해주세요.");
+  };
+
+  const onClickNextButton = () => {
+    const sessionId = form.getValues().sessionId;
+    const accommodations = form.getValues().accommodation;
+
+    if (!sessionId) {
+      alert("세션 ID가 없습니다. 처음부터 다시 시도해주세요.");
+      return;
+    }
+
+    if (accommodations.length === 0) {
+      alert("최소 하나 이상의 숙박 정보를 추가해야 합니다.");
+      return;
+    }
+
+    saveAccommodations.mutate(
+      {
+        sessionId,
+        data: {
+          accommodations: accommodations.map((acc, index) => ({
+            accommodationTypeId: acc.accommodationTypeId,
+            startDate: acc.checkInDate.toISOString().split("T")[0],
+            endDate: acc.checkOutDate.toISOString().split("T")[0],
+            orderIndex: index + 1,
+          })),
+        },
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Accommodations saved:", data);
+          onClickNext();
+          router.replace("/carbon-calculation/result/" + sessionId);
+        },
+        onError: (error) => {
+          console.error("Error saving accommodations:", error);
+          alert("숙박 정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+        },
+      }
+    );
   };
 
   return (
@@ -506,8 +625,7 @@ const AccommodationStep = ({
         <Button
           disabled={!enableToGoNext}
           onClick={() => {
-            alert("API 연결 전, 탄소 배출량 계산 완료!");
-            onClickNext();
+            onClickNextButton();
           }}
         >
           완료

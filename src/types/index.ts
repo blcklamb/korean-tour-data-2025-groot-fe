@@ -42,6 +42,64 @@ export interface AccommodationType {
   carbonEmissionPerNight: number;
 }
 
+// 탄소 계산 세션 관련 타입
+export interface CarbonSession {
+  sessionId: string;
+  step: number;
+  participantCount: number;
+  expiresAt: string;
+}
+
+export interface CarbonSessionRequest {
+  participantCount: number;
+}
+
+export interface RouteInfo {
+  departureLocationId?: number;
+  arrivalLocationId?: number;
+  courseId?: number;
+  transportationTypeId: number;
+  orderIndex: number;
+}
+
+export interface RoutesRequest {
+  routes: RouteInfo[];
+}
+
+export interface RoutesResponse {
+  sessionId: string;
+  step: number;
+  transportationEmission: number;
+}
+
+export interface AccommodationInfo {
+  startDate: string;
+  endDate: string;
+  accommodationTypeId: number;
+  orderIndex: number;
+}
+
+export interface AccommodationsRequest {
+  accommodations: AccommodationInfo[];
+}
+
+export interface AccommodationsResponse {
+  sessionId: string;
+  step: number;
+  accommodationEmission: number;
+}
+
+export interface CarbonCalculationResult {
+  resultId: number;
+  totalCarbonEmission: number;
+  result: {
+    transportation: number;
+    accommodation: number;
+    course: number;
+  };
+  participantCount: number;
+}
+
 // 위치/관광지 관련 타입
 export interface Location {
   id: string;
