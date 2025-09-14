@@ -8,7 +8,7 @@ import { PaginationParams, PaginatedResponse, ApiError } from "@/types/api";
 export const useEcoTourCourses = (
   params?: Parameters<(typeof ecoTourApi)["getCourses"]>,
   options?: Omit<
-    UseQueryOptions<EcoTourCourseSummary[], ApiError>,
+    UseQueryOptions<{ courses: EcoTourCourseSummary[] }, ApiError>,
     "queryKey" | "queryFn"
   >
 ) => {

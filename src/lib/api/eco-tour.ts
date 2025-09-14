@@ -22,7 +22,7 @@ export const ecoTourApi = {
     const queryString = searchParams.toString();
     const endpoint = queryString ? `/courses?${queryString}` : `/courses`;
 
-    return apiClient.get<EcoTourCourseSummary[]>(endpoint);
+    return apiClient.get<{ courses: EcoTourCourseSummary[] }>(endpoint);
     //
   },
 

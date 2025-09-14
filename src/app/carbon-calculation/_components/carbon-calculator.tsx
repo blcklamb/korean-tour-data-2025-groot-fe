@@ -16,20 +16,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ErrorFallback, LoadingState } from "@/components/fetch/data-state";
 import { useForm, UseFormReturn, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowRight, IconLocation, IconMapPin } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import * as z from "zod";
 import { TransportSelect } from "./transport-select";
 import { CourseSelect } from "./course-select";
 import { AddRouteButton } from "./add-route-button";
 import { RouteItem } from "./route-item";
-import { CarbonCalculationStep, mockAccommodationOptions } from "./types";
+import { CarbonCalculationStep } from "./types";
 import { AccommodationItem } from "./accommodation-item";
 import { useRouter } from "next/navigation";
-import { useEcoTourCourses, useLocations } from "@/hooks/queries";
-import { useGetTransportationTypes } from "@/hooks/queries/useCalculator";
+import { useCombinedOptions, useGetAccommodationTypes } from "@/hooks/queries";
+import { DatePicker } from "@/components/ui/date-picker";
 
 // Form schema using zod
 const carbonCalculatorSchema = z.object({
@@ -44,7 +45,7 @@ const carbonCalculatorSchema = z.object({
   ),
   accommodation: z.array(
     z.object({
-      accommodationTypeId: z.string(),
+      accommodationTypeId: z.number(),
       checkInDate: z.date().optional(),
       checkOutDate: z.date().optional(),
     })
@@ -204,39 +205,14 @@ const RouteEcoCoursesStep = ({
 
   const enableToGoNext = routeFields.length > 0;
 
-  const { data: locationData } = useLocations();
-  const { data: ecoTourCourseData } = useEcoTourCourses();
-  const { data: transportTypeData } = useGetTransportationTypes();
-
-  const processedLocationOptions = useMemo(
-    () =>
-      (locationData || []).map((location) => ({
-        value: String(location.id),
-        label: location.areaName,
-      })),
-    [locationData]
-  );
-
-  const processedEcoTourRoutes = useMemo(
-    () =>
-      (ecoTourCourseData || []).map((course) => ({
-        ...course,
-        value: String(course.id),
-        label: course.title,
-      })),
-    [ecoTourCourseData]
-  );
-
-  const processedTransportOptions = useMemo(
-    () =>
-      (transportTypeData || []).map((type) => ({
-        id: type.id,
-        value: String(type.id),
-        label: type.name,
-        icon: type.icon,
-      })),
-    [transportTypeData]
-  );
+  // 새로운 커스텀 훅 사용
+  const {
+    locationOptions,
+    ecoTourOptions,
+    transportOptions,
+    isLoading,
+    hasError,
+  } = useCombinedOptions();
 
   const onClickAddCustomRoute = () => {
     if (
@@ -272,145 +248,158 @@ const RouteEcoCoursesStep = ({
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      {routeFields.length > 0 && (
-        <>
-          <div className="text-base font-semibold">추가된 여행 항목</div>
-          {routeFields.map((route, index) => (
-            <RouteItem
-              key={route.id}
-              departureCityName={
-                processedLocationOptions.filter(
-                  (option) => option.value === String(route.departureLocationId)
-                )[0]?.label
+      <LoadingState
+        isLoading={isLoading}
+        message="여행 데이터를 불러오는 중..."
+      >
+        <ErrorFallback
+          error={hasError}
+          message="데이터를 불러오는 중 오류가 발생했습니다."
+        >
+          {routeFields.length > 0 && (
+            <>
+              <div className="text-base font-semibold">추가된 여행 항목</div>
+              {routeFields.map((route, index) => (
+                <RouteItem
+                  key={route.id}
+                  departureCityName={
+                    locationOptions.filter(
+                      (option) =>
+                        option.value === String(route.departureLocationId)
+                    )[0]?.label
+                  }
+                  arrivalCityName={
+                    locationOptions.filter(
+                      (option) =>
+                        option.value === String(route.arrivalLocationId)
+                    )[0]?.label
+                  }
+                  courseName={
+                    ecoTourOptions.filter(
+                      (course) => course.value === String(route.courseId)
+                    )[0]?.title
+                  }
+                  transportIcon={
+                    transportOptions.filter(
+                      (option) =>
+                        option.value === String(route.transportationTypeId)
+                    )[0]?.icon || ""
+                  }
+                  onDelete={() => removeRoute(index)}
+                />
+              ))}
+            </>
+          )}
+          <div className="text-base font-semibold">
+            경로 및 생태 관광 코스 선택
+          </div>
+          {/* 직접 경로 추가 */}
+          <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
+            <div className="text-base font-medium text-gray-600 flex items-center gap-2">
+              <IconLocation width={24} height={24} />
+              <h6 className="text-base font-medium">직접 경로 추가</h6>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedDepartureCity}
+                onValueChange={setSelectedDepartureCity}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="출발지" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locationOptions?.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <IconArrowRight />
+              <Select
+                value={selectedArrivalCity}
+                onValueChange={setSelectedArrivalCity}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="도착지" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locationOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <h6 className="text-base font-medium">교통 수단</h6>
+            <TransportSelect
+              options={transportOptions}
+              selected={
+                selectedCustomRouteTransport
+                  ? { value: selectedCustomRouteTransport, label: "" }
+                  : null
               }
-              arrivalCityName={
-                processedLocationOptions.filter(
-                  (option) => option.value === String(route.arrivalLocationId)
-                )[0]?.label
-              }
-              courseName={
-                processedEcoTourRoutes.filter(
-                  (course) => course.value === String(route.courseId)
-                )[0]?.title
-              }
-              transportIcon={
-                processedTransportOptions.filter(
-                  (option) =>
-                    option.value === String(route.transportationTypeId)
-                )[0]?.icon || ""
-              }
-              onDelete={() => removeRoute(index)}
+              onSelect={(item) => {
+                if (item?.value) setSelectedCustomRouteTransport(item.value);
+              }}
             />
-          ))}
-        </>
-      )}
-      <div className="text-base font-semibold">경로 및 생태 관광 코스 선택</div>
-      {/* 직접 경로 추가 */}
-      <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
-        <div className="text-base font-medium text-gray-600 flex items-center gap-2">
-          <IconLocation width={24} height={24} />
-          <h6 className="text-base font-medium">직접 경로 추가</h6>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select
-            value={selectedDepartureCity}
-            onValueChange={setSelectedDepartureCity}
-          >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="출발지" />
-            </SelectTrigger>
-            <SelectContent>
-              {processedLocationOptions?.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <IconArrowRight />
-          <Select
-            value={selectedArrivalCity}
-            onValueChange={setSelectedArrivalCity}
-          >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="도착지" />
-            </SelectTrigger>
-            <SelectContent>
-              {processedLocationOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <h6 className="text-base font-medium">교통 수단</h6>
-        <TransportSelect
-          options={processedTransportOptions}
-          selected={
-            selectedCustomRouteTransport
-              ? { value: selectedCustomRouteTransport, label: "" }
-              : null
-          }
-          onSelect={(item) => {
-            if (item?.value) setSelectedCustomRouteTransport(item.value);
-          }}
-        />
-        <AddRouteButton onClick={onClickAddCustomRoute} />
-      </div>
-      {/* 관광 코스 선택 */}
-      <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
-        <div className="text-base font-medium text-gray-600 flex items-center gap-2">
-          <IconMapPin width={24} height={24} />
-          <h6 className="text-base font-medium">관광 코스 선택</h6>
-        </div>
-        <h6 className="text-base font-medium">코스</h6>
-        <div className="max-h-40 overflow-y-auto">
-          <CourseSelect
-            options={processedEcoTourRoutes}
-            selected={
-              selectedEcoCourse ? { value: selectedEcoCourse, label: "" } : null
-            }
-            onSelect={(item) => {
-              if (item?.value) setSelectedEcoCourse(item.value);
-            }}
-            getIcon={(item) => (
-              <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                {item.thumbnailUrl}
-              </span>
-            )}
-            getLabel={(item) => (
-              <div className="flex flex-col">
-                <span className="text-base font-bold text-gray-900">
-                  {item.title}
-                </span>
-                <span className="text-sm text-gray-500">{item.areaName}</span>
-              </div>
-            )}
-          />
-        </div>
-        <h6 className="text-base font-medium">교통 수단</h6>
-        <TransportSelect
-          options={processedTransportOptions}
-          selected={
-            selectedEcoCourseTransport
-              ? { value: selectedEcoCourseTransport, label: "" }
-              : null
-          }
-          onSelect={(item) => {
-            if (item?.value) setSelectedEcoCourseTransport(item.value);
-          }}
-        />
-        <AddRouteButton onClick={onClickAddEcoCourse} />
-      </div>
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={onClickPrevious}>
-          이전
-        </Button>
-        <Button disabled={!enableToGoNext} onClick={onClickNext}>
-          다음
-        </Button>
-      </div>
+            <AddRouteButton onClick={onClickAddCustomRoute} />
+          </div>
+          {/* 관광 코스 선택 */}
+          <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
+            <div className="text-base font-medium text-gray-600 flex items-center gap-2">
+              <IconMapPin width={24} height={24} />
+              <h6 className="text-base font-medium">관광 코스 선택</h6>
+            </div>
+            <h6 className="text-base font-medium">코스</h6>
+            <div className="max-h-40 overflow-y-auto">
+              <CourseSelect
+                options={ecoTourOptions}
+                selected={
+                  selectedEcoCourse
+                    ? { value: selectedEcoCourse, label: "" }
+                    : null
+                }
+                onSelect={(item) => {
+                  if (item?.value) setSelectedEcoCourse(item.value);
+                }}
+                getLabel={(item) => (
+                  <div className="flex flex-col">
+                    <span className="text-base font-bold text-gray-900">
+                      {item.title}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {item.areaName}
+                    </span>
+                  </div>
+                )}
+              />
+            </div>
+            <h6 className="text-base font-medium">교통 수단</h6>
+            <TransportSelect
+              options={transportOptions}
+              selected={
+                selectedEcoCourseTransport
+                  ? { value: selectedEcoCourseTransport, label: "" }
+                  : null
+              }
+              onSelect={(item) => {
+                if (item?.value) setSelectedEcoCourseTransport(item.value);
+              }}
+            />
+            <AddRouteButton onClick={onClickAddEcoCourse} />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClickPrevious}>
+              이전
+            </Button>
+            <Button disabled={!enableToGoNext} onClick={onClickNext}>
+              다음
+            </Button>
+          </div>
+        </ErrorFallback>
+      </LoadingState>
     </div>
   );
 };
@@ -425,10 +414,13 @@ const AccommodationStep = ({
   onClickNext,
 }: AccommodationStepProps) => {
   const [accommodationPeriod, setAccommodationPeriod] = useState<
-    [Date | null, Date | null]
-  >([null, null]);
-  const [selectedAccommodation, setSelectedAccommodation] =
-    useState<string>("");
+    [Date | undefined, Date | undefined]
+  >([undefined, undefined]);
+  const [selectedAccommodationId, setSelectedAccommodationId] = useState<
+    number | null
+  >(null);
+
+  const { data: accommodationTypes } = useGetAccommodationTypes();
 
   const {
     fields: accommodationFields,
@@ -442,30 +434,33 @@ const AccommodationStep = ({
   const enableToGoNext = accommodationFields.length > 0;
 
   const onClickAddAccommodation = () => {
-    if (selectedAccommodation) {
+    if (selectedAccommodationId) {
       appendAccommodation({
-        accommodationTypeId: selectedAccommodation,
+        accommodationTypeId: selectedAccommodationId,
+        checkInDate: accommodationPeriod[0],
+        checkOutDate: accommodationPeriod[1],
       });
-      setSelectedAccommodation("");
-    } else {
-      alert("숙박 유형을 선택해주세요.");
+      setAccommodationPeriod([undefined, undefined]);
+      setSelectedAccommodationId(null);
+      return;
     }
+    alert("숙박 유형을 선택해주세요.");
   };
+
   return (
     <div className="border border-gray-200 rounded-lg mt-4 p-4 flex flex-col gap-4">
       <h2>숙박 정보 입력</h2>
       <>
         {accommodationFields.map((item, index) => {
-          const typeLabel =
-            mockAccommodationOptions.find(
-              (opt) => opt.value === item.accommodationTypeId
-            )?.label || item.accommodationTypeId;
+          const typeLabel = accommodationTypes?.find(
+            (opt) => opt.id === item.accommodationTypeId
+          )?.name;
           return (
             <AccommodationItem
               key={item.id}
               checkInDate={item.checkInDate?.toISOString() || ""}
               checkOutDate={item.checkOutDate?.toISOString() || ""}
-              typeLabel={typeLabel}
+              typeLabel={typeLabel || ""}
               onDelete={() => removeAccommodation(index)}
             />
           );
@@ -474,46 +469,26 @@ const AccommodationStep = ({
       <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
         <h6 className="text-base font-medium">숙박 기간</h6>
         <div className="flex gap-4">
-          <Input
-            type="date"
-            value={accommodationPeriod[0]?.toISOString().split("T")[0] || ""}
-            onChange={(e) =>
-              setAccommodationPeriod([
-                new Date(e.target.value),
-                accommodationPeriod[1],
-              ])
-            }
-            placeholder="체크인"
-            className="flex-1"
-          />
-          <Input
-            type="date"
-            value={accommodationPeriod[1]?.toISOString().split("T")[0] || ""}
-            onChange={(e) =>
-              setAccommodationPeriod([
-                accommodationPeriod[0],
-                new Date(e.target.value),
-              ])
-            }
-            placeholder="체크아웃"
-            className="flex-1"
+          <DatePicker
+            value={{ from: accommodationPeriod[0], to: accommodationPeriod[1] }}
+            onChange={({ from, to }) => setAccommodationPeriod([from, to])}
           />
         </div>
         <h6 className="text-base font-medium">숙박 유형</h6>
         <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
           <div className="flex flex-col gap-2">
-            {mockAccommodationOptions.map((option) => (
+            {accommodationTypes?.map((option) => (
               <Card
-                key={option.value}
+                key={option.id}
                 className={`p-2 cursor-pointer border ${
-                  selectedAccommodation === option.value
+                  selectedAccommodationId === option.id
                     ? "bg-green-100 border-green-600"
                     : "hover:bg-gray-50"
                 }`}
-                onClick={() => setSelectedAccommodation(option.value)}
+                onClick={() => setSelectedAccommodationId(option.id)}
               >
                 <div className="flex items-center gap-2 h-full">
-                  <span>{option.label}</span>
+                  <span>{option.name}</span>
                 </div>
               </Card>
             ))}

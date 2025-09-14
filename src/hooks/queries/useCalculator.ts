@@ -1,6 +1,6 @@
 import { calculatorApi } from "@/lib/api/calculator";
 import { queryKeys } from "@/lib/query-keys";
-import { TransportationType } from "@/types";
+import { AccommodationType, TransportationType } from "@/types";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { ApiError } from "next/dist/server/api-utils";
 
@@ -14,6 +14,21 @@ export const useGetTransportationTypes = (
   return useQuery({
     queryKey: queryKeys.carbon.transport(),
     queryFn: () => calculatorApi.getTransportTypes().then((res) => res.data),
+    ...options,
+  });
+};
+
+// 숙박 타입 조회
+export const useGetAccommodationTypes = (
+  options?: Omit<
+    UseQueryOptions<AccommodationType[], ApiError>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  return useQuery({
+    queryKey: queryKeys.carbon.accommodation(),
+    queryFn: () =>
+      calculatorApi.getAccommodationTypes().then((res) => res.data),
     ...options,
   });
 };

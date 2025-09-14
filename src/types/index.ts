@@ -25,12 +25,21 @@ export interface EcoTourCourseSummary {
   isLiked: boolean;
 }
 
+// 교통 수단 타입
 export interface TransportationType {
   id: number;
   name: string;
   type: string;
   carbonEmissionPerKm: number;
   icon: string;
+}
+
+// 숙박 타입
+export interface AccommodationType {
+  id: number;
+  name: string;
+  type: string;
+  carbonEmissionPerNight: number;
 }
 
 // 위치/관광지 관련 타입

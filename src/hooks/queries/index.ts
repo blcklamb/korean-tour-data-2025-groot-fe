@@ -3,3 +3,5 @@ export * from "./useLocation";
 export * from "./useCarbon";
 export * from "./useEcoTour";
 export * from "./useUser";
+export * from "./useCalculator";
+export * from "../useProcessedData";
