@@ -5,7 +5,6 @@ import {
   UpdateProfileRequest,
   LogoutResponse,
   User,
-  DemoLoginRequest,
 } from "@/types";
 
 /**
@@ -25,7 +24,7 @@ export const kakaoLogin = async (
 export const kakaoLoginWithCode = async (
   code: string
 ): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>("/auth/kakao/callback", {
+  const response = await apiClient.post<LoginResponse>("/auth/kakao", {
     code,
   });
   return response.data;
@@ -54,19 +53,6 @@ export const logout = async (): Promise<LogoutResponse> => {
  */
 export const getCurrentUser = async (): Promise<User> => {
   const response = await apiClient.get<User>("/users/profile");
-  return response.data;
-};
-
-/**
- * 데모 로그인 (개발용)
- */
-export const demoLogin = async (
-  data: DemoLoginRequest
-): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>(
-    "/auth/demo-login",
-    data
-  );
   return response.data;
 };
 

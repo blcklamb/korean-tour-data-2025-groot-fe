@@ -94,14 +94,6 @@ export const userApi = {
     return apiClient.get<User>(`/users/${userId}`);
   },
 
-  // 사용자 프로필 업데이트
-  updateProfile: (
-    userId: string,
-    data: Partial<Pick<User, "name" | "avatar">>
-  ) => {
-    return apiClient.patch<User>(`/users/${userId}`, data);
-  },
-
   // 사용자 통계 조회
   getUserStats: (userId: string) => {
     return apiClient.get<{

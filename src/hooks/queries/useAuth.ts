@@ -3,11 +3,11 @@ import { useRouter } from "next/navigation";
 import {
   kakaoLogin,
   kakaoLoginWithCode,
-  demoLogin,
   logout,
   getCurrentUser,
   updateProfile,
   tokenStorage,
+  demoEmailLogin,
 } from "@/lib/api/auth";
 import { queryKeys } from "@/lib/query-keys";
 import {
@@ -116,7 +116,7 @@ export const useDemoLogin = (options?: {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: DemoLoginRequest) => demoLogin(data),
+    mutationFn: (data: DemoLoginRequest) => demoEmailLogin(data),
     onSuccess: (data) => {
       // 토큰 저장
       tokenStorage.setToken(data.accessToken);

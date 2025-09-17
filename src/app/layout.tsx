@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
-import KakaoInitializer from "@/lib/kakao-initilaizer";
+import KakaoInitializer from "@/lib/kakao-initializer";
 import { QueryProvider } from "@/lib/query-client";
 
 export const metadata = {

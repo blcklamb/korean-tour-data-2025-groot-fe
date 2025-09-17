@@ -2,9 +2,9 @@
 
 import { useKakaoLoginWithCode } from "@/hooks/queries";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function KakaoCallbackPage() {
+function KakaoCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [hasProcessed, setHasProcessed] = useState(false);
@@ -93,5 +93,24 @@ export default function KakaoCallbackPage() {
         <p className="text-gray-600">로그인 성공! 메인 페이지로 이동 중...</p>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="text-gray-600">로딩 중...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function KakaoCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <KakaoCallbackContent />
+    </Suspense>
   );
 }
