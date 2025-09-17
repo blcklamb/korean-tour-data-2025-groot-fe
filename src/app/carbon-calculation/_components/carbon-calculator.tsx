@@ -76,9 +76,6 @@ const CarbonCalculator = () => {
   const route = useRouter();
 
   const goToMainPage = () => {
-    const formData = form.getValues();
-    alert(`탄소 배출량 계산이 완료되었습니다!", ${JSON.stringify(formData)}`);
-
     route.push("/");
   };
 

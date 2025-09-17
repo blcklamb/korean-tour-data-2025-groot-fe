@@ -7,6 +7,7 @@ export function CourseSelect(props: CourseSelectProps) {
   const { options, selected, onSelect, getLabel } = props;
 
   const [error, setError] = useState<boolean>(false);
+
   return (
     <div className="flex flex-col gap-2">
       {options.map((item) => (
@@ -21,13 +22,17 @@ export function CourseSelect(props: CourseSelectProps) {
         >
           <div className="flex items-center gap-2 h-full">
             <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-              <Image
-                src={!error ? item.thumbnailUrl : "/groot_logo.png"}
-                alt={item.title}
-                width={40}
-                height={40}
-                onError={() => setError(true)}
-              />
+              {item.thumbnailUrl.startsWith("http") ? (
+                <Image
+                  src={!error ? item.thumbnailUrl : "/groot_logo.png"}
+                  alt={item.title}
+                  width={40}
+                  height={40}
+                  onError={() => setError(true)}
+                />
+              ) : (
+                <>{item.thumbnailUrl}</>
+              )}
             </span>
             <span className="text-xs">
               {getLabel ? getLabel(item) : item.title}
