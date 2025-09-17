@@ -94,6 +94,13 @@ export const queryKeys = {
     shareHistory: (id: string, params?: unknown) =>
       [...queryKeys.users.all, "share-history", id, params] as const,
   },
+
+  // 인증 관련 키
+  auth: {
+    all: ["auth"] as const,
+    me: () => [...queryKeys.auth.all, "me"] as const,
+    profile: () => [...queryKeys.auth.all, "profile"] as const,
+  },
 } as const;
 
 // Query Key 팩토리 함수들

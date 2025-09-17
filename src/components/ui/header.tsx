@@ -6,6 +6,7 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import LogoIcon from "./logo";
+import { useCurrentUser } from "@/hooks/queries";
 
 interface AppHeaderProps {
   title?: string;
@@ -19,10 +20,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onBackClick,
 }) => {
   const router = useRouter();
-  const isLogin = false; // 임시 로그인 상태
-  const tempUser = {
-    name: "홍길동",
-  };
+
+  const { data: user } = useCurrentUser();
+  const isLogin = user?.id !== undefined;
 
   const onLoginClick = () => {
     router.push(ROUTES.LOGIN);
@@ -77,7 +77,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               href={ROUTES.MY_PAGE}
               className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold"
             >
-              {tempUser.name[0] || "U"}
+              {user.nickname[0]}
             </a>
           )}
           {!isLogin && (

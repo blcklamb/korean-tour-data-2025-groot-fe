@@ -191,12 +191,43 @@ export interface Badge {
 // 사용자 타입
 export interface User {
   id: string;
-  name: string;
   email: string;
-  avatar?: string;
-  level: number;
-  points: number;
-  badges: Badge[];
-  carbonSaved: number;
-  joinedAt: string;
+  nickname: string;
+  birthYear?: number;
+  gender?: "male" | "female";
+  address?: string;
+  profileImageUrl?: string;
+  role: "USER" | "ADMIN";
+  authProvider: "kakao" | "demo";
+  level?: number;
+  points?: number;
+  badges?: Badge[];
+  carbonSaved?: number;
+  createdAt: string;
+}
+
+// 인증 관련 타입들
+export interface KakaoLoginRequest {
+  accessToken: string;
+}
+
+export interface DemoLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  accessToken: string;
+}
+
+export interface UpdateProfileRequest {
+  nickname: string;
+  birthYear: number;
+  gender: "male" | "female";
+  address: string;
+}
+
+export interface LogoutResponse {
+  message: string;
 }

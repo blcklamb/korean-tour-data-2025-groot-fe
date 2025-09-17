@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import BottomFixedNavigator from "@/components/ui/bottom-fixed-navigator";
+import KakaoInitializer from "@/lib/kakao-initilaizer";
 import { QueryProvider } from "@/lib/query-client";
 
 export const metadata = {
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head />
+      <head>
+        {/* 카카오 SDK */}
+        <KakaoInitializer />
+      </head>
       <body>
         <QueryProvider>
           <div className="flex flex-col min-h-screen">
