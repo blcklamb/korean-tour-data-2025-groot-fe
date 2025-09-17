@@ -76,30 +76,6 @@ export const useUserShareHistory = (
   });
 };
 
-// 사용자 Mutation Hooks
-export const useUpdateUser = (
-  options?: UseMutationOptions<
-    User,
-    ApiError,
-    { userId: string; data: Partial<Pick<User, "name" | "avatar">> }
-  >
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ userId, data }) =>
-      userApi.updateProfile(userId, data).then((res) => res.data),
-    onSuccess: (updatedUser) => {
-      // 사용자 정보 캐시 업데이트
-      queryClient.setQueryData(
-        queryKeys.users.detail(updatedUser.id),
-        updatedUser
-      );
-    },
-    ...options,
-  });
-};
-
 export const useCheckLevelUp = (
   options?: UseMutationOptions<
     { leveledUp: boolean; newLevel?: number; rewards?: number },
