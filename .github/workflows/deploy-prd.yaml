@@ -6,6 +6,7 @@ on:
       commit:
         description: "배포 시작"
         required: false
+        type: boolean
 
 # OIDC token permissions
 permissions:
