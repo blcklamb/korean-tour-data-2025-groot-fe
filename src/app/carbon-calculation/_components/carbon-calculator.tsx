@@ -73,10 +73,10 @@ const CarbonCalculator = () => {
       accommodation: [],
     },
   });
-  const route = useRouter();
+  const router = useRouter();
 
   const goToMainPage = () => {
-    route.push("/");
+    router.push("/");
   };
 
   const getStepProgress = (_step: CarbonCalculationStep) => {
@@ -95,7 +95,7 @@ const CarbonCalculator = () => {
     <div className="w-full">
       <AppHeader
         showBackButton
-        onBackClick={() => route.replace("/")}
+        onBackClick={() => router.replace("/")}
         title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
       />
       <div className="p-4">

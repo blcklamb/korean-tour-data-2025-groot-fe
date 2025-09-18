@@ -51,6 +51,8 @@ export const queryKeys = {
       [...queryKeys.ecoTours.lists(), params] as const,
     details: () => [...queryKeys.ecoTours.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.ecoTours.details(), id] as const,
+    categories: () => [...queryKeys.ecoTours.all, "categories"] as const,
+    sigungu: () => [...queryKeys.ecoTours.all, "sigungus"] as const,
     recommended: (userId?: string, limit?: number) =>
       [...queryKeys.ecoTours.all, "recommended", userId, limit] as const,
     popular: (limit?: number) =>

@@ -1,7 +1,9 @@
 import { apiClient } from "./client";
 import {
+  EcoTourCategory,
   EcoTourCourseDetail,
   EcoTourCourseSummary,
+  EcoTourSigungu,
 } from "@/types";
 
 export interface EcoTourCourseFilters {
@@ -54,6 +56,12 @@ export const ecoTourApi = {
       `/courses/${courseId}/like`
     );
     return response.data;
+  },
+
+  getCategories: () => apiClient.get<EcoTourCategory[]>("/courses/categories"),
+
+  getSigungus: () => {
+    return apiClient.get<EcoTourSigungu[]>("/courses/locations/sigungus");
   },
 };
 

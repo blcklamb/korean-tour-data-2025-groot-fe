@@ -5,6 +5,20 @@ export interface LocationArea {
   areaName: string;
 }
 
+export interface EcoTourCategory {
+  id: number;
+  categoryName: string;
+}
+
+export interface EcoTourSigungu {
+  id: number;
+  sigunguCode: number;
+  areaName: string;
+  sigunguName: string;
+  mapX: number;
+  mapY: number;
+}
+
 // 생태 관광 코스 목록 조회
 export interface EcoTourSpotSummary {
   id: number;

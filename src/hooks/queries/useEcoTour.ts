@@ -11,7 +11,12 @@ import {
   EcoTourCourseLikePayload,
 } from "@/lib/api/eco-tour";
 import { queryKeys } from "@/lib/query-keys";
-import { EcoTourCourseDetail, EcoTourCourseSummary } from "@/types";
+import {
+  EcoTourCategory,
+  EcoTourCourseDetail,
+  EcoTourCourseSummary,
+  EcoTourSigungu,
+} from "@/types";
 import { ApiError } from "@/types/api";
 
 export const useEcoTourCourses = (
@@ -42,6 +47,40 @@ export const useEcoTourCourse = (
       return response.data;
     },
     enabled: !!courseId,
+    ...options,
+  });
+};
+
+export const useEcoTourCategories = (
+  options?: Omit<
+    UseQueryOptions<EcoTourCategory[], ApiError>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  return useQuery({
+    queryKey: queryKeys.ecoTours.categories(),
+    queryFn: async () => {
+      const response = await ecoTourApi.getCategories();
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useEcoTourSigungus = (
+  options?: Omit<
+    UseQueryOptions<EcoTourSigungu[], ApiError>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  return useQuery({
+    queryKey: queryKeys.ecoTours.sigungu(),
+    queryFn: async () => {
+      const response = await ecoTourApi.getSigungus();
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000,
     ...options,
   });
 };

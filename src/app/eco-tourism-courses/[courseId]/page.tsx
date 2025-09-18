@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEcoTourCourse, useToggleEcoTourCourseLike } from "@/hooks/queries";
 import { Leaf, Loader2, MapPin, Phone, ThumbsUp } from "lucide-react";
+import Image from "next/image";
 
 export default function EcoTourCourseDetailPage() {
   const params = useParams<{ courseId: string }>();
@@ -14,9 +15,12 @@ export default function EcoTourCourseDetailPage() {
     ? params?.courseId[0]
     : params?.courseId;
 
-  const { data: course, isLoading, isError, error } = useEcoTourCourse(
-    courseIdParam ?? ""
-  );
+  const {
+    data: course,
+    isLoading,
+    isError,
+    error,
+  } = useEcoTourCourse(courseIdParam ?? "");
 
   const toggleLikeMutation = useToggleEcoTourCourseLike();
 
@@ -74,10 +78,12 @@ export default function EcoTourCourseDetailPage() {
         <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
           <div className="h-56 w-full bg-gray-100">
             {course.thumbnailUrl ? (
-              <img
+              <Image
                 src={course.thumbnailUrl}
                 alt={course.title}
                 className="h-full w-full object-cover"
+                width={500}
+                height={300}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
@@ -92,11 +98,17 @@ export default function EcoTourCourseDetailPage() {
                 {course.areaName} · {course.sigunguName}
               </span>
               <span>조회수 {course.viewCount.toLocaleString()}회</span>
-              <span>총 탄소 배출량 {course.totalCarbonEmission.toFixed(1)}kg CO₂e</span>
-              <span>등록일 {new Date(course.createdAt).toLocaleDateString()}</span>
+              <span>
+                총 탄소 배출량 {course.totalCarbonEmission.toFixed(1)}kg CO₂e
+              </span>
+              <span>
+                등록일 {new Date(course.createdAt).toLocaleDateString()}
+              </span>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {course.title}
+              </h1>
               <div className="flex flex-col items-end gap-2">
                 <Button
                   onClick={handleToggleLike}
@@ -163,7 +175,8 @@ export default function EcoTourCourseDetailPage() {
                   )}
                   <p className="flex items-center gap-2">
                     <Leaf className="h-4 w-4" />
-                    1인당 탄소 배출량 {spot.carbonEmissionPerPerson.toFixed(1)}kg CO₂e
+                    1인당 탄소 배출량 {spot.carbonEmissionPerPerson.toFixed(1)}
+                    kg CO₂e
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
