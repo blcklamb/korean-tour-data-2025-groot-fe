@@ -1,0 +1,163 @@
+name: 🚀 Groot Frontend PRD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "배포 시작"
+        required: false
+
+# OIDC token permissions
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  TARGET_EC2_TAG: 'prd'
+  SERVICE_URL: 'https://www.groot.live'
+  NEXT_PUBLIC_API_BASE_URL: https://be-prd.groot.live/api/v1
+
+# main 브랜치에서만 실행 가능하도록 제한
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # main 브랜치가 아니면 실행하지 않음
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Check branch
+      run: |
+        if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+          echo "❌ PRD 배포는 main 브랜치에서만 가능합니다."
+          exit 1
+        fi
+        echo "✅ main 브랜치 확인됨"
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build application
+      run: yarn build
+
+    # ✅ 배포용 tar.gz 생성
+    - name: Create deployment archive
+      run: |
+        tar -czf deploy-fe-prd.tar.gz \
+          .next \
+          public \
+          package.json \
+          yarn.lock \
+          next.config.ts
+
+    # AWS OIDC 기반 임시토큰 발급
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::827604627136:role/groot-git
+        aws-region: ap-northeast-2
+
+    - name: Upload deploy-fe-prd.tar.gz to S3
+      run: aws s3 cp deploy-fe-prd.tar.gz s3://groot-app-bucket/deploy-fe-prd.tar.gz
+
+    - name: Find target instance-id by tag
+      id: find
+      run: |
+        IID=$(aws ec2 describe-instances \
+          --filters "Name=tag:env,Values=${{ env.TARGET_EC2_TAG }}" "Name=tag:service,Values=groot" "Name=instance-state-name,Values=running" \
+          --query "Reservations[].Instances[].InstanceId" --output text)
+        if [ -z "$IID" ]; then
+          echo "No running instance found with tag=env=${TARGET_EC2_TAG}" >&2
+          exit 1
+        fi
+        echo "instance_id=$IID" >> $GITHUB_OUTPUT
+
+    - name: Send deploy command via SSM
+      id: ssm
+      run: |
+        CMD_ID=$(aws ssm send-command \
+          --instance-ids "${{ steps.find.outputs.instance_id }}" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy groot frontend prd via SSM" \
+          --parameters commands='[
+            "set -e",
+            "sudo -u ec2-user aws s3 cp s3://groot-app-bucket/deploy-scripts/deploy-fe-prd.sh /home/ec2-user/groot/deploy-fe-prd.sh",
+            "sudo -u ec2-user chmod +x /home/ec2-user/groot/deploy-fe-prd.sh",
+            "sudo -u ec2-user /home/ec2-user/groot/deploy-fe-prd.sh"
+            ]' \
+          --query "Command.CommandId" --output text)
+        echo "command_id=$CMD_ID" >> $GITHUB_OUTPUT
+
+    - name: Wait for command to finish
+      run: |
+        for i in $(seq 1 60); do
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "${{ steps.ssm.outputs.command_id }}" \
+            --instance-id "${{ steps.find.outputs.instance_id }}" \
+            --query "Status" --output text || true)
+          echo "SSM status: $STATUS"
+          case "$STATUS" in
+            Success) exit 0 ;;
+            Failed|Cancelled|TimedOut) 
+              echo "SSM command failed: $STATUS"
+              # 실패 시 출력 내용 가져와서 마지막 10줄만 출력
+              OUTPUT=$(aws ssm get-command-invocation \
+                --command-id "${{ steps.ssm.outputs.command_id }}" \
+                --instance-id "${{ steps.find.outputs.instance_id }}" \
+                --query "StandardOutputContent" --output text || echo "No output")
+              ERROR=$(aws ssm get-command-invocation \
+                --command-id "${{ steps.ssm.outputs.command_id }}" \
+                --instance-id "${{ steps.find.outputs.instance_id }}" \
+                --query "StandardErrorContent" --output text || echo "No error")
+              echo "=== COMMAND OUTPUT (last 10 lines) ==="
+              echo "$OUTPUT" | tail -10
+              echo "=== COMMAND ERROR (last 10 lines) ==="
+              echo "$ERROR" | tail -10
+              exit 1 ;;
+          esac
+          sleep 5
+        done
+        echo "Timeout waiting for SSM command" >&2
+        exit 1
+
+    # ✅ 배포된 URL 정상 응답 확인 (5분 동안 10초 간격 재시도)
+    - name: Verify deployed URL
+      run: |
+        URL="${{ env.SERVICE_URL }}"
+
+        echo "🔍 배포 검증 시작: ${URL}"
+        ATTEMPTS=30   # 30회 * 10초 = 5분
+        COUNT=0
+
+        while [ $COUNT -lt $ATTEMPTS ]; do
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${URL}" || echo "000")
+          echo "Attempt $((COUNT+1)) → HTTP $STATUS_CODE"
+
+          if [ "$STATUS_CODE" = "200" ]; then
+            echo "✅ 검증 성공! HTTP 200"
+            exit 0
+          fi
+
+          COUNT=$((COUNT+1))
+          echo "⏳ 10초 후 재시도..."
+          sleep 10
+        done
+
+        echo "❌ 검증 실패! 5분 동안 HTTP 200 응답을 받지 못했습니다."
+        exit 1
+
+    - name: Write deployment summary
+      run: |
+        URL="${{ env.SERVICE_URL }}"
+        echo "## 🚀 PRD 배포 완료" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "👉 [${URL}](${URL})" >> $GITHUB_STEP_SUMMARY
