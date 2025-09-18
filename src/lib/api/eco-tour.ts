@@ -1,75 +1,60 @@
 import { apiClient } from "./client";
-import { EcoTourCourse, EcoTourCourseSummary } from "@/types";
-import { PaginationParams, PaginatedResponse } from "@/types/api";
+import {
+  EcoTourCourseDetail,
+  EcoTourCourseSummary,
+} from "@/types";
 
-// 에코 투어 코스 관련 API
+export interface EcoTourCourseFilters {
+  areaId?: number;
+  sigunguId?: number;
+  categoryId?: number;
+  tags?: string[];
+}
+
+interface EcoTourCoursesResponse {
+  courses: EcoTourCourseSummary[];
+}
+
+export interface EcoTourCourseLikePayload {
+  isLiked: boolean;
+  likeCount: number;
+}
+
 export const ecoTourApi = {
-  // 모든 에코 투어 코스 조회
-  getCourses: (
-    areaId?: number,
-    sigunguId?: number,
-    categoryId?: number,
-    tags?: string[]
-  ) => {
+  getCourses: (filters?: EcoTourCourseFilters) => {
     const searchParams = new URLSearchParams();
-    if (areaId) searchParams.append("areaId", areaId.toString());
-    if (sigunguId) searchParams.append("sigunguId", sigunguId.toString());
-    if (categoryId) searchParams.append("categoryId", categoryId.toString());
-    if (tags && tags.length > 0) {
-      tags.forEach((tag) => searchParams.append("tags", tag));
+
+    if (filters?.areaId) {
+      searchParams.set("areaId", filters.areaId.toString());
+    }
+    if (filters?.sigunguId) {
+      searchParams.set("sigunguId", filters.sigunguId.toString());
+    }
+    if (filters?.categoryId) {
+      searchParams.set("categoryId", filters.categoryId.toString());
+    }
+    if (filters?.tags && filters.tags.length > 0) {
+      searchParams.set("tags", filters.tags.join(","));
     }
 
     const queryString = searchParams.toString();
     const endpoint = queryString ? `/courses?${queryString}` : `/courses`;
 
-    return apiClient.get<{ courses: EcoTourCourseSummary[] }>(endpoint);
-    //
+    return apiClient.get<EcoTourCoursesResponse>(endpoint);
   },
 
-  // 특정 에코 투어 코스 조회
-  getCourse: (id: string) => {
-    return apiClient.get<EcoTourCourse>(`/eco-tours/${id}`);
+  getCourse: (courseId: number | string) => {
+    return apiClient.get<EcoTourCourseDetail>(`/courses/${courseId}`);
   },
 
-  // 추천 에코 투어 코스 조회
-  getRecommendedCourses: (userId?: string, limit: number = 5) => {
-    const searchParams = new URLSearchParams({ limit: limit.toString() });
-    if (userId) searchParams.append("userId", userId);
-
-    return apiClient.get<EcoTourCourse[]>(
-      `/eco-tours/recommended?${searchParams.toString()}`
+  toggleCourseLike: async (
+    courseId: number
+  ): Promise<EcoTourCourseLikePayload> => {
+    const response = await apiClient.post<EcoTourCourseLikePayload>(
+      `/courses/${courseId}/like`
     );
-  },
-
-  // 인기 에코 투어 코스 조회
-  getPopularCourses: (limit: number = 10) => {
-    return apiClient.get<EcoTourCourse[]>(`/eco-tours/popular?limit=${limit}`);
-  },
-
-  // 난이도별 코스 조회
-  getCoursesByDifficulty: (
-    difficulty: EcoTourCourse["difficulty"],
-    params?: PaginationParams
-  ) => {
-    const searchParams = new URLSearchParams({ difficulty });
-
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-
-    return apiClient.get<PaginatedResponse<EcoTourCourse>>(
-      `/eco-tours/difficulty/${difficulty}?${searchParams.toString()}`
-    );
-  },
-
-  // 코스 검색
-  searchCourses: (query: string, params?: PaginationParams) => {
-    const searchParams = new URLSearchParams({ search: query });
-
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-
-    return apiClient.get<PaginatedResponse<EcoTourCourse>>(
-      `/eco-tours/search?${searchParams.toString()}`
-    );
+    return response.data;
   },
 };
+
+export default ecoTourApi;

@@ -6,23 +6,48 @@ export interface LocationArea {
 }
 
 // 생태 관광 코스 목록 조회
+export interface EcoTourSpotSummary {
+  id: number;
+  title: string;
+  thumbnailUrl: string;
+  tags: string[];
+  carbonEmissionPerPerson: number;
+}
+
 export interface EcoTourCourseSummary {
   id: number;
   title: string;
   thumbnailUrl: string;
   areaName: string;
   sigunguName: string;
-  spots: {
-    id: number;
-    title: string;
-    thumbnailUrl: string;
-    tags: string[];
-    carbonEmissionPerPerson: number;
-  }[];
+  spots: EcoTourSpotSummary[];
   totalCarbonEmission: number;
   viewCount: number;
   likeCount: number;
   isLiked: boolean;
+}
+
+export interface EcoTourSpotDetail extends EcoTourSpotSummary {
+  summary: string;
+  address1: string;
+  mapX: number;
+  mapY: number;
+  imageUrl1?: string;
+  tel?: string;
+}
+
+export interface EcoTourCourseDetail {
+  id: number;
+  title: string;
+  thumbnailUrl: string;
+  areaName: string;
+  sigunguName: string;
+  spots: EcoTourSpotDetail[];
+  totalCarbonEmission: number;
+  viewCount: number;
+  likeCount: number;
+  isLiked: boolean;
+  createdAt: string;
 }
 
 // 교통 수단 타입
