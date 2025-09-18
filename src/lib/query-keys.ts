@@ -70,9 +70,21 @@ export const queryKeys = {
     list: (params?: unknown) =>
       [...queryKeys.missions.lists(), params] as const,
     details: () => [...queryKeys.missions.all, "detail"] as const,
-    detail: (id: string) => [...queryKeys.missions.details(), id] as const,
+    detail: (id: string | number) =>
+      [...queryKeys.missions.details(), String(id)] as const,
     user: (userId: string, params?: unknown) =>
       [...queryKeys.missions.all, "user", userId, params] as const,
+    feed: () => [...queryKeys.missions.all, "feed"] as const,
+    histories: () => [...queryKeys.missions.all, "histories"] as const,
+    historyDetail: (historyId: number) =>
+      [...queryKeys.missions.all, "history", historyId] as const,
+    tag: (tag?: string) => [...queryKeys.missions.all, "tag", tag] as const,
+  },
+
+  stamps: {
+    all: ["stamps"] as const,
+    collection: (areaId?: number) =>
+      [...queryKeys.stamps.all, "collection", areaId] as const,
   },
 
   // 배지 관련 키

@@ -7,3 +7,4 @@ export * from "./location";
 export * from "./carbon";
 export * from "./eco-tour";
 export * from "./user";
+export * from "./missions";

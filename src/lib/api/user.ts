@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { Mission, Badge, User } from "@/types";
+import { Mission, Badge, User, UpdateProfileRequest } from "@/types";
 import { PaginationParams, PaginatedResponse } from "@/types/api";
 
 // 미션 관련 API
@@ -131,5 +131,9 @@ export const userApi = {
         platform: string;
       }>
     >(`/users/${userId}/share-history?${searchParams.toString()}`);
+  },
+
+  updateProfile: (payload: UpdateProfileRequest) => {
+    return apiClient.put<User>("/users/profile", payload);
   },
 };

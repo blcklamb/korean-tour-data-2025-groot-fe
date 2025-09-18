@@ -10,6 +10,54 @@ import { Leaf, Loader2, MapPin, Phone, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { AppHeader } from "@/components/ui/header";
 import { getRouteHref, ROUTES } from "@/lib/routes";
+import { EcoTourCourseDetail } from "@/types";
+
+const MOCK_COURSE: EcoTourCourseDetail = {
+  id: 0,
+  title: "문경새재 벚꽃길 (모의 데이터)",
+  thumbnailUrl:
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+  areaName: "경상북도",
+  sigunguName: "문경시",
+  spots: [
+    {
+      id: 1,
+      title: "국립대야산자연휴양림",
+      summary:
+        "맑은 계곡과 울창한 숲으로 유명한 휴양림으로 삼림욕과 트레킹에 안성맞춤입니다.",
+      address1: "경상북도 문경시 가은읍 용추길 31-35",
+      mapX: 127.9619770044,
+      mapY: 36.670906003,
+      thumbnailUrl:
+        "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80",
+      imageUrl1:
+        "https://images.githubusercontent.com/mock/national-forest.jpg",
+      tel: "1588-3250",
+      tags: ["국립공원", "자연관광"],
+      carbonEmissionPerPerson: 2.5,
+    },
+    {
+      id: 2,
+      title: "문경새재 도립공원",
+      summary:
+        "역사와 자연이 공존하는 고갯길로 봄철 벚꽃과 가을 단풍이 아름답습니다.",
+      address1: "경상북도 문경시 문경읍 새재로 932",
+      mapX: 128.150977,
+      mapY: 36.805834,
+      thumbnailUrl:
+        "https://images.unsplash.com/photo-1455218873509-8097305ee378?auto=format&fit=crop&w=1200&q=80",
+      imageUrl1: "https://images.githubusercontent.com/mock/mungyeong-park.jpg",
+      tel: "054-571-0709",
+      tags: ["트레킹", "문화유산"],
+      carbonEmissionPerPerson: 2.1,
+    },
+  ],
+  totalCarbonEmission: 5.0,
+  viewCount: 1250,
+  likeCount: 89,
+  isLiked: false,
+  createdAt: new Date().toISOString(),
+};
 
 export default function EcoTourCourseDetailPage() {
   const params = useParams<{ courseId: string }>();
@@ -22,19 +70,21 @@ export default function EcoTourCourseDetailPage() {
   const {
     data: course,
     isLoading,
-    isError,
     error,
   } = useEcoTourCourse(courseIdParam ?? "");
 
   const toggleLikeMutation = useToggleEcoTourCourseLike();
 
+  const shouldUseMockData = !isLoading && !course;
+  const displayCourse: EcoTourCourseDetail = course ?? MOCK_COURSE;
+
   const likeButtonLabel = useMemo(() => {
-    if (!course) return "좋아요";
-    return course.isLiked ? "좋아요 취소" : "좋아요";
-  }, [course]);
+    if (!displayCourse) return "좋아요";
+    return displayCourse.isLiked ? "좋아요 취소" : "좋아요";
+  }, [displayCourse]);
 
   const handleToggleLike = () => {
-    if (!course) return;
+    if (shouldUseMockData || !course) return;
     toggleLikeMutation.mutate({ courseId: course.id });
   };
 
@@ -60,35 +110,34 @@ export default function EcoTourCourseDetailPage() {
     );
   }
 
-  if (isError || !course) {
-    return (
-      <div className="space-y-4">
-        <Button asChild variant="outline">
-          <Link href="/eco-tourism-courses">코스 목록으로 돌아가기</Link>
-        </Button>
-        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error?.message || "코스 정보를 불러오는 중 오류가 발생했습니다."}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <AppHeader
         showBackButton
-        title={course.title}
+        title={displayCourse.title}
         onBackClick={() =>
           router.push(getRouteHref(ROUTES.ECO_TOURISM_COURSES))
         }
       />
+      {shouldUseMockData && (
+        <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700">
+          <p>
+            실시간 데이터를 불러오지 못해 예시 데이터로 페이지를 구성했습니다.
+          </p>
+          {error?.message && (
+            <p className="mt-2 text-xs text-yellow-600/80">
+              원인: {error.message}
+            </p>
+          )}
+        </div>
+      )}
       <div className="space-y-4">
         <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
           <div className="h-56 w-full bg-gray-100">
-            {course.thumbnailUrl ? (
+            {displayCourse.thumbnailUrl ? (
               <Image
-                src={course.thumbnailUrl}
-                alt={course.title}
+                src={displayCourse.thumbnailUrl}
+                alt={displayCourse.title}
                 className="h-full w-full object-cover"
                 width={500}
                 height={300}
@@ -103,34 +152,35 @@ export default function EcoTourCourseDetailPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600">
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
-                {course.areaName} · {course.sigunguName}
+                {displayCourse.areaName} · {displayCourse.sigunguName}
               </span>
-              <span>조회수 {course.viewCount.toLocaleString()}회</span>
+              <span>조회수 {displayCourse.viewCount.toLocaleString()}회</span>
               <span>
-                총 탄소 배출량 {course.totalCarbonEmission.toFixed(1)}kg CO₂e
+                총 탄소 배출량 {displayCourse.totalCarbonEmission.toFixed(1)}kg
+                CO₂e
               </span>
               <span>
-                등록일 {new Date(course.createdAt).toLocaleDateString()}
+                등록일 {new Date(displayCourse.createdAt).toLocaleDateString()}
               </span>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-3xl font-bold text-gray-900">
-                {course.title}
+                {displayCourse.title}
               </h1>
               <div className="flex flex-col items-end gap-2">
                 <Button
                   onClick={handleToggleLike}
-                  disabled={toggleLikeMutation.isPending}
-                  variant={course.isLiked ? "default" : "secondary"}
+                  disabled={shouldUseMockData || toggleLikeMutation.isPending}
+                  variant={displayCourse.isLiked ? "default" : "secondary"}
                 >
                   {toggleLikeMutation.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <ThumbsUp className="mr-2 h-4 w-4" />
                   )}
-                  {likeButtonLabel} ({course.likeCount.toLocaleString()})
+                  {likeButtonLabel} ({displayCourse.likeCount.toLocaleString()})
                 </Button>
-                {toggleLikeMutation.isError && (
+                {!shouldUseMockData && toggleLikeMutation.isError && (
                   <p className="text-xs text-red-600">
                     좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.
                   </p>
@@ -144,7 +194,7 @@ export default function EcoTourCourseDetailPage() {
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-gray-900">코스 구성 장소</h2>
         <div className="flex flex-col gap-6 ">
-          {course.spots.map((spot) => (
+          {displayCourse.spots.map((spot) => (
             <Card key={spot.id} className="overflow-hidden">
               <div className="h-40 w-full bg-gray-100">
                 {spot.thumbnailUrl ? (

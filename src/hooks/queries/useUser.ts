@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { userApi, missionApi, badgeApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import { User, Mission, Badge } from "@/types";
+import { User, Mission, Badge, UpdateProfileRequest } from "@/types";
 import { PaginationParams, PaginatedResponse, ApiError } from "@/types/api";
 
 // 사용자 관련 Query Hooks
@@ -21,6 +21,23 @@ export const useUser = (
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 사용자 정보는 5분 동안 신선함
     ...options,
+  });
+};
+
+export const useUpdateUserProfile = (
+  options?: UseMutationOptions<User, ApiError, UpdateProfileRequest>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => userApi.updateProfile(payload).then((res) => res.data),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(data.id) });
+      queryClient.setQueryData(queryKeys.auth.me(), data);
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: options?.onError,
+    onSettled: options?.onSettled,
   });
 };
 

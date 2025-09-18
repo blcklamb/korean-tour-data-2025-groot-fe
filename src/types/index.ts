@@ -19,6 +19,125 @@ export interface EcoTourSigungu {
   mapY: number;
 }
 
+// 미션 시스템 관련 타입
+export interface MissionListItem {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  tag: string;
+  rewardCarbonEmission: number;
+}
+
+export interface MissionHistoryUser {
+  userId: string;
+  nickname: string;
+  address?: string;
+}
+
+export interface MissionBadgeReward {
+  id: number;
+  name: string;
+  iconUrl?: string;
+  imageUrl?: string;
+}
+
+export interface MissionHistoryMissionInfo {
+  name: string;
+  icon: string;
+  tag?: string;
+  thumbnailUrl?: string;
+}
+
+export interface MissionHistorySummary {
+  id: number;
+  mission: MissionHistoryMissionInfo;
+  content: string;
+  thumbnailUrl?: string;
+  rewardCarbonEmission: number;
+  likeCount: number;
+  isLiked: boolean;
+  createdAt: string;
+}
+
+export interface MissionFeedItem {
+  id: number;
+  user: MissionHistoryUser;
+  mission: MissionHistoryMissionInfo & { tag: string };
+  rewardBadge?: MissionBadgeReward | null;
+  likeCount: number;
+  isLiked: boolean;
+  createdAt: string;
+}
+
+export interface MissionHistoryDetail {
+  history: {
+    id: number;
+    user: MissionHistoryUser;
+    mission: MissionHistoryMissionInfo & { tag: string };
+    rewardBadge?: MissionBadgeReward[];
+    sigungu?: {
+      id: number;
+      sigunguCode: number;
+      sigunguName: string;
+      mapX: number;
+      mapY: number;
+      areaId: number;
+    };
+    content: string;
+    imageUrls: string[];
+    likeCount: number;
+    isLiked: boolean;
+    createdAt: string;
+  };
+  sameMissions: MissionFeedItem[];
+  nearByMissions: MissionFeedItem[];
+}
+
+export interface MissionCompletionResult {
+  missionHistoryId: number;
+  rewardCarbonEmission: number;
+  rewardBadge?: MissionBadgeReward | null;
+}
+
+export interface PresignedUrlResponse {
+  uploadUrl: string;
+  fileUrl: string;
+  expiresIn: number;
+}
+
+export interface CourseVisitStamp {
+  stampId: number;
+  courseTitle: string;
+  stampImageUrl: string;
+  currentCount: number;
+  visitedAt: string;
+}
+
+export interface StampCollectionEntry {
+  id: number;
+  course: {
+    id: number;
+    title: string;
+    areaName: string;
+    sigunguName: string;
+  };
+  stampImageUrl: string;
+  isLimited: boolean;
+  visitedAt: string;
+}
+
+export interface StampCollectionStatistics {
+  totalStamps: number;
+  areaCompletionRate: number;
+  completedAreas: string[];
+}
+
+export interface StampCollectionSummary {
+  stamps: StampCollectionEntry[];
+  statistics: StampCollectionStatistics;
+}
+
 // 생태 관광 코스 목록 조회
 export interface EcoTourSpotSummary {
   id: number;
@@ -265,6 +384,8 @@ export interface UpdateProfileRequest {
   birthYear: number;
   gender: "male" | "female";
   address: string;
+  profileImageUrl?: string;
+  primaryBadgeId?: number;
 }
 
 export interface LogoutResponse {
