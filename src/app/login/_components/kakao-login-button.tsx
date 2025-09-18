@@ -1,28 +1,36 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-const redirectUri = `http://localhost:3000/auth/callback`;
+const KAKAO_AUTH_ENDPOINT = "https://kauth.kakao.com/oauth/authorize";
+const DEFAULT_REDIRECT_PATH = "/auth/callback";
 
 export default function KakaoLoginButton({}) {
+  const router = useRouter();
   const handleKakaoLogin = async () => {
-    try {
-      // 카카오 SDK를 사용하여 액세스 토큰 획득
-      // 실제 구현에서는 카카오 SDK 초기화가 필요합니다
-      if (typeof window !== "undefined" && window.Kakao) {
-        window.Kakao.Auth.authorize({
-          redirectUri,
-        });
-      } else {
-        // SDK가 로드되지 않은 경우 데모용으로 처리
-        console.error(
-          "카카오 SDK가 로드되지 않았습니다. 데모 로그인을 이용해주세요."
-        );
-      }
-    } catch (error) {
-      console.error("카카오 로그인 오류:", error);
-      console.error("카카오 로그인 중 오류가 발생했습니다.");
+    const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+
+    if (!clientId) {
+      console.error("Kakao REST API 키가 설정되지 않았습니다.");
+      return;
     }
+
+    if (typeof window === "undefined") {
+      console.error("브라우저 환경에서만 사용할 수 있습니다.");
+      return;
+    }
+
+    const redirectUri =
+      process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ??
+      `${window.location.origin}${DEFAULT_REDIRECT_PATH}`;
+
+    const authorizationUrl = new URL(KAKAO_AUTH_ENDPOINT);
+    authorizationUrl.searchParams.set("client_id", clientId);
+    authorizationUrl.searchParams.set("redirect_uri", redirectUri);
+    authorizationUrl.searchParams.set("response_type", "code");
+
+    router.push(authorizationUrl.toString());
   };
 
   return (

@@ -1,30 +1,44 @@
 "use client";
 
-import { useKakaoLoginWithCode } from "@/hooks/queries";
+import { useKakaoLoginWithToken } from "@/hooks/queries";
+import { exchangeKakaoTokenWithCode } from "@/lib/api/auth";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 
 function KakaoCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [hasProcessed, setHasProcessed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isExchangePending, setIsExchangePending] = useState(false);
 
-  const postKakaoLogin = useKakaoLoginWithCode({
-    onSuccess: () => {
-      setHasProcessed(true);
-      router.replace("/");
+  const kakaoLoginWithToken = useKakaoLoginWithToken();
+
+  const handleKakaoLogin = useCallback(
+    async (code: string) => {
+      try {
+        setIsExchangePending(true);
+
+        // 1단계: 코드를 access token으로 교환
+        const tokenData = await exchangeKakaoTokenWithCode(code);
+
+        // 2단계: access token으로 로그인
+        await kakaoLoginWithToken.mutateAsync(tokenData.accessToken);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "로그인 중 오류가 발생했습니다.";
+        setError(errorMessage);
+        setTimeout(() => {
+          router.replace("/login");
+        }, 2000);
+      } finally {
+        setIsExchangePending(false);
+      }
     },
-    onError: (error) => {
-      console.error("Kakao Login Error:", error);
-      setError(error.message || "로그인 중 오류가 발생했습니다.");
-      setHasProcessed(true);
-      // 3초 후 로그인 페이지로 리다이렉트
-      setTimeout(() => {
-        router.replace("/login");
-      }, 3000);
-    },
-  });
+    [kakaoLoginWithToken, router]
+  );
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -54,12 +68,14 @@ function KakaoCallbackContent() {
     }
 
     // 카카오 로그인 API 호출 (code를 서버로 전달)
-    postKakaoLogin.mutate(code);
+    handleKakaoLogin(code);
     setHasProcessed(true);
-  }, [searchParams, hasProcessed, router, postKakaoLogin]);
+  }, [searchParams, hasProcessed, router, handleKakaoLogin]);
 
   // 로딩 중이거나 에러가 없을 때
-  if (!error && !hasProcessed) {
+  const isLoading = isExchangePending || kakaoLoginWithToken.isPending;
+
+  if (!error && (isLoading || !hasProcessed)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">

@@ -17,15 +17,47 @@ export const kakaoLogin = async (
   return response.data;
 };
 
+export type KakaoTokenExchangeResponse = {
+  accessToken: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  refreshTokenExpiresIn?: number;
+  scope?: string;
+  tokenType?: string;
+};
+
+export const exchangeKakaoTokenWithCode = async (
+  code: string
+): Promise<KakaoTokenExchangeResponse> => {
+  const response = await fetch(`/api/kakao/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ code }),
+  });
+
+  const payload = await response.json();
+
+  if (!response.ok) {
+    const message =
+      (payload && (payload.error_description || payload.error || payload.message)) ??
+      "카카오 토큰 교환에 실패했습니다.";
+    throw new Error(message);
+  }
+
+  return payload as KakaoTokenExchangeResponse;
+};
+
 /**
  * 카카오 OAuth 코드를 사용한 로그인
  * (서버에서 code를 accessToken으로 교환)
  */
-export const kakaoLoginWithCode = async (
-  code: string
+export const kakaoLoginWithToken = async (
+  accessToken: string
 ): Promise<LoginResponse> => {
   const response = await apiClient.post<LoginResponse>("/auth/kakao", {
-    code,
+    accessToken,
   });
   return response.data;
 };

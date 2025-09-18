@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   kakaoLogin,
-  kakaoLoginWithCode,
+  kakaoLoginWithToken,
   logout,
   getCurrentUser,
   updateProfile,
@@ -71,7 +71,7 @@ export const useKakaoLogin = (options?: {
  * 카카오 OAuth 코드로 로그인 Mutation
  * (콜백 페이지에서 사용)
  */
-export const useKakaoLoginWithCode = (options?: {
+export const useKakaoLoginWithToken = (options?: {
   onSuccess?: (data: LoginResponse) => void;
   onError?: (error: Error) => void;
 }) => {
@@ -79,7 +79,7 @@ export const useKakaoLoginWithCode = (options?: {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (code: string) => kakaoLoginWithCode(code),
+    mutationFn: (accessToken: string) => kakaoLoginWithToken(accessToken),
     onSuccess: (data) => {
       // 토큰 저장
       tokenStorage.setToken(data.accessToken);
