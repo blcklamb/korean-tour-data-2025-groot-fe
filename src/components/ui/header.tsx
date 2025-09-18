@@ -15,7 +15,7 @@ interface AppHeaderProps {
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  title = "탄소배출량 계산",
+  title,
   showBackButton = false,
   onBackClick,
 }) => {

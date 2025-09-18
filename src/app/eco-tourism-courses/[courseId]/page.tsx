@@ -1,19 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEcoTourCourse, useToggleEcoTourCourseLike } from "@/hooks/queries";
 import { Leaf, Loader2, MapPin, Phone, ThumbsUp } from "lucide-react";
 import Image from "next/image";
+import { AppHeader } from "@/components/ui/header";
+import { getRouteHref, ROUTES } from "@/lib/routes";
 
 export default function EcoTourCourseDetailPage() {
   const params = useParams<{ courseId: string }>();
   const courseIdParam = Array.isArray(params?.courseId)
     ? params?.courseId[0]
     : params?.courseId;
+
+  const router = useRouter();
 
   const {
     data: course,
@@ -71,10 +75,14 @@ export default function EcoTourCourseDetailPage() {
 
   return (
     <div className="space-y-8">
+      <AppHeader
+        showBackButton
+        title={course.title}
+        onBackClick={() =>
+          router.push(getRouteHref(ROUTES.ECO_TOURISM_COURSES))
+        }
+      />
       <div className="space-y-4">
-        <Button asChild variant="outline">
-          <Link href="/eco-tourism-courses">← 코스 목록으로 돌아가기</Link>
-        </Button>
         <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
           <div className="h-56 w-full bg-gray-100">
             {course.thumbnailUrl ? (
@@ -135,21 +143,25 @@ export default function EcoTourCourseDetailPage() {
 
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-gray-900">코스 구성 장소</h2>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="flex flex-col gap-6 ">
           {course.spots.map((spot) => (
             <Card key={spot.id} className="overflow-hidden">
               <div className="h-40 w-full bg-gray-100">
                 {spot.thumbnailUrl ? (
-                  <img
+                  <Image
                     src={spot.thumbnailUrl}
                     alt={spot.title}
                     className="h-full w-full object-cover"
+                    width={500}
+                    height={300}
                   />
                 ) : spot.imageUrl1 ? (
-                  <img
+                  <Image
                     src={spot.imageUrl1}
                     alt={spot.title}
                     className="h-full w-full object-cover"
+                    width={500}
+                    height={300}
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">

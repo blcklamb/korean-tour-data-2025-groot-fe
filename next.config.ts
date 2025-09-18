@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
         search: "",
       },
       {
+        protocol: "https",
+        hostname: "groot-app-bucket.s3.ap-northeast-2.amazonaws.com",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
+      {
         protocol: "http",
         hostname: "tong.visitkorea.or.kr",
         port: "",

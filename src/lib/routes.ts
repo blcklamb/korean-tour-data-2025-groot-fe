@@ -50,4 +50,8 @@ export const getRouteLabel = (route: ROUTES) => {
   return routeInfo.filter((_route) => _route.href === route)[0].label;
 };
 
+export const getRouteHref = (route: ROUTES) => {
+  return routeInfo.filter((_route) => _route.href === route)[0].href;
+};
+
 export default routeInfo;

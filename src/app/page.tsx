@@ -111,7 +111,6 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
       <AppHeader />
-
       {/* 히어로 섹션 - 배너 캐러셀 */}
       <div className="bg-white p-4">
         <div className="max-w-md mx-auto">
