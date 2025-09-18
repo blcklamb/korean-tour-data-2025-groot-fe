@@ -33,7 +33,7 @@ env:
   TARGET_EC2_TAG: 'dev'
   SERVICE_URL: 'https://fe-dev.groot.live'
   NEXT_PUBLIC_API_BASE_URL: https://be-dev.groot.live/api/v1
-  BUILD_ENV=development
+  BUILD_ENV: development
   NEXT_PUBLIC_KAKAO_REST_API_KEY: ${{ secrets.NEXT_PUBLIC_KKAKAO_REST_API_KEY }}
   NEXT_PUBLIC_KAKAO_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
 
