@@ -35,6 +35,8 @@ import {
 } from "lucide-react";
 import { MissionHistorySummary, StampCollectionSummary } from "@/types";
 import { useRouter } from "next/navigation";
+import { LoginRequired } from "@/components/auth/login-required";
+import { tokenStorage } from "@/lib/api/auth";
 
 interface ProfileFormState {
   nickname: string;
@@ -59,14 +61,36 @@ const DEFAULT_PROFILE: ProfileFormState = {
 
 export default function MyPage() {
   const { data: currentUser } = useCurrentUser();
-  const stampQuery = useStampCollection();
-  const missionHistoryQuery = useMissionHistories();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const stampQuery = useStampCollection(undefined, {
+    enabled: isAuthenticated,
+  });
+  const missionHistoryQuery = useMissionHistories({
+    enabled: isAuthenticated,
+  });
   const updateProfile = useUpdateUserProfile();
 
   const [formState, setFormState] = useState<ProfileFormState>(DEFAULT_PROFILE);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const syncAuthState = () => {
+      console.log("tokenStorage", tokenStorage.isAuthenticated());
+      setIsAuthenticated(tokenStorage.isAuthenticated());
+    };
+
+    syncAuthState();
+    setHasCheckedAuth(true);
+
+    window.addEventListener("storage", syncAuthState);
+
+    return () => {
+      window.removeEventListener("storage", syncAuthState);
+    };
+  }, []);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -120,6 +144,34 @@ export default function MyPage() {
     const source = missionHistoryQuery.data ?? [];
     return source.slice(0, 3);
   }, [missionHistoryQuery.data]);
+
+  if (!hasCheckedAuth) {
+    return (
+      <div className="space-y-6 pb-10">
+        <AppHeader
+          showBackButton
+          title="마이 페이지"
+          onBackClick={() => router.back()}
+        />
+        <div className="flex min-h-[200px] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-6 pb-10">
+        <AppHeader
+          showBackButton
+          title="마이 페이지"
+          onBackClick={() => router.back()}
+        />
+        <LoginRequired className="mx-auto max-w-md" redirectTo="/my-page" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-10">

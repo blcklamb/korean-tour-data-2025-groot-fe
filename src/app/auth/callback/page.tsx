@@ -2,8 +2,14 @@
 
 import { useKakaoLoginWithToken } from "@/hooks/queries";
 import { exchangeKakaoTokenWithCode } from "@/lib/api/auth";
+import {
+  buildLoginUrl,
+  extractRedirectParam,
+  normalizeRedirectUrl,
+} from "@/lib/auth/redirect";
+import { ROUTES } from "@/lib/routes";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense, useCallback } from "react";
+import { useEffect, useState, Suspense, useCallback, useMemo } from "react";
 
 function KakaoCallbackContent() {
   const searchParams = useSearchParams();
@@ -12,7 +18,24 @@ function KakaoCallbackContent() {
   const [error, setError] = useState<string | null>(null);
   const [isExchangePending, setIsExchangePending] = useState(false);
 
-  const kakaoLoginWithToken = useKakaoLoginWithToken();
+  const redirectFromState = useMemo(
+    () => normalizeRedirectUrl(searchParams.get("state")),
+    [searchParams]
+  );
+
+  const redirectFromQuery = useMemo(
+    () => extractRedirectParam(searchParams),
+    [searchParams]
+  );
+
+  const redirectUrl = redirectFromState ?? redirectFromQuery;
+  const fallbackLoginUrl = redirectUrl
+    ? buildLoginUrl(redirectUrl)
+    : ROUTES.LOGIN;
+
+  const kakaoLoginWithToken = useKakaoLoginWithToken({
+    redirectUrl,
+  });
 
   const handleKakaoLogin = useCallback(
     async (code: string) => {
@@ -31,7 +54,7 @@ function KakaoCallbackContent() {
             : "로그인 중 오류가 발생했습니다.";
         setError(errorMessage);
         setTimeout(() => {
-          router.replace("/login");
+          router.replace(fallbackLoginUrl);
         }, 2000);
       } finally {
         setIsExchangePending(false);
@@ -52,7 +75,7 @@ function KakaoCallbackContent() {
       setError("로그인이 취소되었습니다.");
       setHasProcessed(true);
       setTimeout(() => {
-        router.replace("/login");
+        router.replace(fallbackLoginUrl);
       }, 2000);
       return;
     }
@@ -62,7 +85,7 @@ function KakaoCallbackContent() {
       setError("인증 코드를 받지 못했습니다.");
       setHasProcessed(true);
       setTimeout(() => {
-        router.replace("/login");
+        router.replace(fallbackLoginUrl);
       }, 2000);
       return;
     }
