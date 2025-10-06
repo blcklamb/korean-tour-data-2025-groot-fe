@@ -9,6 +9,7 @@ import {
   tokenStorage,
   demoEmailLogin,
 } from "@/lib/api/auth";
+import { resolvePostLoginDestination } from "@/lib/auth/redirect";
 import { queryKeys } from "@/lib/query-keys";
 import {
   DemoLoginRequest,
@@ -36,6 +37,7 @@ export const useCurrentUser = () => {
 export const useKakaoLogin = (options?: {
   onSuccess?: (data: LoginResponse) => void;
   onError?: (error: Error) => void;
+  redirectUrl?: string | null;
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -54,12 +56,12 @@ export const useKakaoLogin = (options?: {
 
       options?.onSuccess?.(data);
 
-      // 로그인 성공 후 리다이렉트 (추가 정보가 필요한지 확인)
-      if (!data.user.birthYear || !data.user.gender || !data.user.address) {
-        router.push("/onboarding");
-      } else {
-        router.push("/");
-      }
+      const destination = resolvePostLoginDestination(
+        data.user,
+        options?.redirectUrl
+      );
+
+      router.push(destination);
     },
     onError: (error) => {
       options?.onError?.(error);
@@ -74,6 +76,7 @@ export const useKakaoLogin = (options?: {
 export const useKakaoLoginWithToken = (options?: {
   onSuccess?: (data: LoginResponse) => void;
   onError?: (error: Error) => void;
+  redirectUrl?: string | null;
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -92,12 +95,12 @@ export const useKakaoLoginWithToken = (options?: {
 
       options?.onSuccess?.(data);
 
-      // 로그인 성공 후 리다이렉트 (추가 정보가 필요한지 확인)
-      if (!data.user.birthYear || !data.user.gender || !data.user.address) {
-        router.push("/onboarding");
-      } else {
-        router.push("/");
-      }
+      const destination = resolvePostLoginDestination(
+        data.user,
+        options?.redirectUrl
+      );
+
+      router.push(destination);
     },
     onError: (error) => {
       options?.onError?.(error);
@@ -111,6 +114,7 @@ export const useKakaoLoginWithToken = (options?: {
 export const useDemoLogin = (options?: {
   onSuccess?: (data: LoginResponse) => void;
   onError?: (error: Error) => void;
+  redirectUrl?: string | null;
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -129,8 +133,12 @@ export const useDemoLogin = (options?: {
 
       options?.onSuccess?.(data);
 
-      // 로그인 성공 후 메인 페이지로 이동
-      router.push("/");
+      const destination = resolvePostLoginDestination(
+        data.user,
+        options?.redirectUrl
+      );
+
+      router.push(destination);
     },
     onError: (error) => {
       options?.onError?.(error);

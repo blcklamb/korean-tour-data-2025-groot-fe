@@ -1,13 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { LOGIN_REDIRECT_PARAM } from "@/lib/auth/redirect";
 
 const KAKAO_AUTH_ENDPOINT = "https://kauth.kakao.com/oauth/authorize";
 const DEFAULT_REDIRECT_PATH = "/auth/callback";
 
-export default function KakaoLoginButton({}) {
+interface KakaoLoginButtonProps {
+  redirectUrl?: string;
+}
+
+export default function KakaoLoginButton({
+  redirectUrl,
+}: KakaoLoginButtonProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const handleKakaoLogin = async () => {
     const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
 
@@ -29,6 +37,13 @@ export default function KakaoLoginButton({}) {
     authorizationUrl.searchParams.set("client_id", clientId);
     authorizationUrl.searchParams.set("redirect_uri", redirectUri);
     authorizationUrl.searchParams.set("response_type", "code");
+
+    const redirectValue =
+      redirectUrl ?? searchParams?.get(LOGIN_REDIRECT_PARAM) ?? undefined;
+
+    if (redirectValue) {
+      authorizationUrl.searchParams.set("state", redirectValue);
+    }
 
     router.push(authorizationUrl.toString());
   };

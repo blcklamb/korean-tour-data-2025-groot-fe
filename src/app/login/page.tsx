@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import LogoIcon from "@/components/ui/logo";
 import { useDemoLogin } from "@/hooks/queries/useAuth";
 import { Loader2 } from "lucide-react";
 import KakaoLoginButton from "./_components/kakao-login-button";
+import { useSearchParams } from "next/navigation";
+import { extractRedirectParam } from "@/lib/auth/redirect";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  const redirectUrl = useMemo(
+    () => extractRedirectParam(searchParams),
+    [searchParams]
+  );
 
   const demoLogin = useDemoLogin({
+    redirectUrl,
     onError: (error) => {
       setError(error.message || "데모 로그인 중 오류가 발생했습니다.");
     },
@@ -54,7 +63,7 @@ export default function LoginPage() {
         {/* 로그인 버튼들 */}
         <div className="space-y-3">
           {/* 카카오 로그인 버튼 */}
-          <KakaoLoginButton />
+          <KakaoLoginButton redirectUrl={redirectUrl ?? undefined} />
 
           {/* 데모 로그인 버튼 */}
           <Button
