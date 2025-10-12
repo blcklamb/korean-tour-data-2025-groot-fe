@@ -5,8 +5,8 @@ const missionSchema = z.object({
   latitude: z.number().min(-90, "유효한 위도 형식이 아닙니다.").max(90),
   longitude: z.number().min(-180, "유효한 경도 형식이 아닙니다.").max(180),
   sigunguId: z.string().optional(),
-  files: z
-    .array(z.instanceof(File))
+  imageUrls: z
+    .array(z.string().url("유효한 이미지 URL이 아닙니다."))
     .max(3, "최대 3장의 사진만 업로드할 수 있습니다.")
     .optional(),
 });

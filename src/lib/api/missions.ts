@@ -38,12 +38,7 @@ export const missionsApi = {
   completeMission: (missionId: number, formData: CompleteMissionRequest) => {
     return apiClient.post<MissionCompletionResult>(
       `/missions/${missionId}/complete`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+      formData
     );
   },
 

@@ -24,6 +24,7 @@ import {
 import { AppHeader } from "@/components/ui/header";
 import { useRouter } from "next/navigation";
 import { getRouteLabel, ROUTES } from "@/lib/routes";
+import Image from "next/image";
 
 const ALL_VALUE = "__all";
 const TARGET_SIGUNGU_AREA_NAME = "경상북도";
@@ -214,11 +215,15 @@ function CourseCard({ course }: { course: EcoTourCourseSummary }) {
     <Card className="overflow-hidden">
       <div className="h-40 w-full bg-gray-100">
         {course.thumbnailUrl ? (
-          <img
-            src={course.thumbnailUrl}
-            alt={course.title}
-            className="h-full w-full object-cover"
-          />
+          <>
+            <Image
+              src={course.thumbnailUrl}
+              alt={course.title}
+              className="hidden h-full w-full object-cover sm:block"
+              width={500}
+              height={200}
+            />
+          </>
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
             이미지 없음
