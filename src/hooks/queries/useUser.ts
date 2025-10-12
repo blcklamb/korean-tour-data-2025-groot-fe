@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { userApi, missionApi, badgeApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import { User, Mission, Badge, UpdateProfileRequest } from "@/types";
+import { User, Mission, Badge, UpdateProfileRequest, UserBadge } from "@/types";
 import { PaginationParams, PaginatedResponse, ApiError } from "@/types/api";
 
 // 사용자 관련 Query Hooks
@@ -30,9 +30,12 @@ export const useUpdateUserProfile = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => userApi.updateProfile(payload).then((res) => res.data),
+    mutationFn: (payload) =>
+      userApi.updateProfile(payload).then((res) => res.data),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(data.id) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.detail(data.id),
+      });
       queryClient.setQueryData(queryKeys.auth.me(), data);
       options?.onSuccess?.(data, variables, context);
     },
@@ -243,11 +246,22 @@ export const useUpdateMissionProgress = (
 // 배지 관련 Query Hooks
 export const useUserBadges = (
   userId: string,
-  options?: Omit<UseQueryOptions<Badge[], ApiError>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<UserBadge, ApiError>, "queryKey" | "queryFn">
 ) => {
   return useQuery({
     queryKey: queryKeys.badges.user(userId),
-    queryFn: () => badgeApi.getUserBadges(userId).then((res) => res.data),
+    queryFn: async () => {
+      try {
+        const response = await badgeApi.getUserBadges();
+        return response.data;
+      } catch (error) {
+        const apiError = error as ApiError;
+        if (apiError?.status === 404) {
+          return { ownedBadges: [], primaryBadgeId: undefined };
+        }
+        throw error;
+      }
+    },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 배지는 5분 동안 신선함
     ...options,
@@ -255,12 +269,11 @@ export const useUserBadges = (
 };
 
 export const useAllBadges = (
-  category?: Badge["category"],
   options?: Omit<UseQueryOptions<Badge[], ApiError>, "queryKey" | "queryFn">
 ) => {
   return useQuery({
-    queryKey: queryKeys.badges.list(category),
-    queryFn: () => badgeApi.getAllBadges(category).then((res) => res.data),
+    queryKey: queryKeys.badges.list(),
+    queryFn: () => badgeApi.getAllBadges().then((res) => res.data),
     staleTime: 10 * 60 * 1000, // 전체 배지 목록은 10분 동안 신선함
     ...options,
   });

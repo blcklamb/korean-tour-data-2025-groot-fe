@@ -340,11 +340,17 @@ export interface Mission {
 export interface Badge {
   id: string;
   name: string;
+  criteria: string;
   description: string;
-  icon: string;
-  unlocked: boolean;
-  unlockedAt?: string;
-  category: "carbon" | "travel" | "social" | "special";
+  iconUrl: string;
+}
+
+export interface UserBadge {
+  ownedBadges: (Pick<Badge, "name" | "iconUrl"> & {
+    badgeId: number;
+    createdAt: string;
+  })[];
+  primaryBadgeId?: number;
 }
 
 // 사용자 타입
@@ -408,5 +414,5 @@ export interface CompleteMissionRequest {
   latitude: number;
   longitude: number;
   sigunguId?: number;
-  images?: File[];
+  imageUrls: string[];
 }
