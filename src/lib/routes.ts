@@ -7,6 +7,7 @@ export enum ROUTES {
   LOGIN = "/login",
   ONBOARDING = "/onboarding",
   MY_PAGE = "/my-page",
+  MY_PAGE_HISTORIES = "/my-page/histories",
   MY_PAGE_SHARE_HISTORY = "/my-page/share-history",
   ECO_TOURISM_COURSES = "/eco-tourism-courses",
   BADGES = "/badges",
@@ -33,6 +34,11 @@ export const routeInfo: {
   { href: ROUTES.LOGIN, label: "로그인", query: {} },
   { href: ROUTES.ONBOARDING, label: "온보딩", query: {} },
   { href: ROUTES.MY_PAGE, label: "마이 페이지", query: {} },
+  {
+    href: ROUTES.MY_PAGE_HISTORIES,
+    label: "나의 미션 인증 기록",
+    query: {},
+  },
   {
     href: ROUTES.MY_PAGE_SHARE_HISTORY,
     label: "공유 히스토리 조회",

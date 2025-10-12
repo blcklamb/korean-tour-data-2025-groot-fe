@@ -12,7 +12,7 @@ const BottomFixedNavigator = () => {
   };
 
   return (
-    <div className="fixed left-0 right-0 bottom-0 bg-white border-t border-gray-200 p-4">
+    <div className="fixed left-0 right-0 bottom-0 bg-white border-t border-gray-200 p-4 z-20">
       <div className="flex justify-evenly items-center max-w-md mx-auto">
         {/* 홈 */}
         <Button
