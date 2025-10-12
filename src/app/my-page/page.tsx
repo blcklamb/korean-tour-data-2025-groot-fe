@@ -153,7 +153,6 @@ export default function MyPage() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    console.log("Selected file:", file);
     if (!file) {
       return;
     }
@@ -179,7 +178,6 @@ export default function MyPage() {
             removeProfileImage: false,
           }
     );
-    console.log("objectUrl", objectUrl);
 
     setIsUploadingImage(true);
 
@@ -188,8 +186,6 @@ export default function MyPage() {
         fileName: file.name,
         fileType: file.type || "image/jpeg",
       });
-
-      console.log("presignedResponse", presignedResponse);
 
       clearPreviewObjectUrl();
       setFormState((prev) =>
@@ -216,8 +212,6 @@ export default function MyPage() {
       event.currentTarget.value = "";
     }
   };
-
-  console.log("formState", formState);
 
   const handleRemoveProfileImage = () => {
     clearPreviewObjectUrl();

@@ -25,7 +25,6 @@ export default function LoginForm() {
   });
 
   const handleDemoLogin = () => {
-    console.log("Demo Login Clicked");
     setError(null);
     demoLogin.mutate({
       email: "demo@example.com",
