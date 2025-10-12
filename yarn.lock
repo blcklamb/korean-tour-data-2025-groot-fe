@@ -7,7 +7,7 @@
   resolved "https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
-"@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.22.15", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.28.4"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.4.tgz"
   integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
@@ -633,6 +633,19 @@
   integrity sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A==
   dependencies:
     "@radix-ui/react-compose-refs" "1.1.2"
+
+"@radix-ui/react-switch@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-switch/-/react-switch-1.2.6.tgz#ff79acb831f0d5ea9216cfcc5b939912571358e3"
+  integrity sha512-bByzr1+ep1zk4VubeEVViV592vu2lHE2BZY5OnzehZqOOgogN80+mNtCqPkhn2gklJqOpxWgPoYTSnhBCqpOXQ==
+  dependencies:
+    "@radix-ui/primitive" "1.1.3"
+    "@radix-ui/react-compose-refs" "1.1.2"
+    "@radix-ui/react-context" "1.1.2"
+    "@radix-ui/react-primitive" "2.1.3"
+    "@radix-ui/react-use-controllable-state" "1.2.2"
+    "@radix-ui/react-use-previous" "1.1.1"
+    "@radix-ui/react-use-size" "1.1.1"
 
 "@radix-ui/react-use-callback-ref@1.1.1":
   version "1.1.1"
@@ -2642,6 +2655,11 @@ json5@^1.0.2:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
+kakao.maps.d.ts@^0.1.39:
+  version "0.1.40"
+  resolved "https://registry.yarnpkg.com/kakao.maps.d.ts/-/kakao.maps.d.ts-0.1.40.tgz#60a922e6fa1ab90c57e062e84978eb2d0e506412"
+  integrity sha512-nX69MB1ok04epe3OqS+/tEeWBbU31GSQbvDPJmQRRltzzqn6t4jBsO5v1nzalUjCKzwcH2CptOc767NZ7Hbu3g==
+
 keyv@^4.5.4:
   version "4.5.4"
   resolved "https://registry.npmjs.org/keyv/-/keyv-4.5.4.tgz"
@@ -2858,6 +2876,11 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
+
+next-themes@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/next-themes/-/next-themes-0.4.6.tgz#8d7e92d03b8fea6582892a50a928c9b23502e8b6"
+  integrity sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==
 
 next@15.3.5:
   version "15.3.5"
@@ -3077,6 +3100,11 @@ queue-microtask@^1.2.2:
   resolved "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
+react-daum-postcode@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-daum-postcode/-/react-daum-postcode-3.2.0.tgz#07fbbc38f4b0c48ee3c8f703eba5e4c9d82ffb2f"
+  integrity sha512-NHY8TUicZXMqykbKYT8kUo2PEU7xu1DFsdRmyWJrLEUY93Xhd3rEdoJ7vFqrvs+Grl9wIm9Byxh3bI+eZxepMQ==
+
 react-day-picker@^9.9.0:
   version "9.9.0"
   resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-9.9.0.tgz#494da0f1470e8f0ca61c30100b17615687b68393"
@@ -3107,6 +3135,14 @@ react-is@^18.3.1:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
+
+react-kakao-maps-sdk@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-kakao-maps-sdk/-/react-kakao-maps-sdk-1.2.0.tgz#036f6443980169dde76a8bd422a319b5860d8a5d"
+  integrity sha512-ptyHhtSbvyza+9IAf6TXjE4ZhwwLbXR6avgNM2ju5xed2+fDwJ+gJDFSqhfsKbvFn9K9+3I+dY3JrqruwsGNBw==
+  dependencies:
+    "@babel/runtime" "^7.22.15"
+    kakao.maps.d.ts "^0.1.39"
 
 react-remove-scroll-bar@^2.3.7:
   version "2.3.8"
@@ -3410,6 +3446,11 @@ simple-swizzle@^0.2.2:
   integrity sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg==
   dependencies:
     is-arrayish "^0.3.1"
+
+sonner@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-2.0.7.tgz#810c1487a67ec3370126e0f400dfb9edddc3e4f6"
+  integrity sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w==
 
 source-map-js@^1.0.2, source-map-js@^1.2.1:
   version "1.2.1"

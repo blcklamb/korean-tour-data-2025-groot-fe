@@ -21,7 +21,6 @@ import { useForm, UseFormReturn, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowRight, IconLocation, IconMapPin } from "@tabler/icons-react";
 import { useState } from "react";
-import * as z from "zod";
 import { TransportSelect } from "./transport-select";
 import { CourseSelect } from "./course-select";
 import { AddRouteButton } from "./add-route-button";
@@ -37,35 +36,16 @@ import {
   useSaveRoutes,
 } from "@/hooks/queries";
 import { DatePicker } from "@/components/ui/date-picker";
-
-// Form schema using zod
-const carbonCalculatorSchema = z.object({
-  sessionId: z.uuid(),
-  personnel: z.number().min(1, "인원수는 1명 이상이어야 합니다"),
-  routes: z.array(
-    z.object({
-      departureLocationId: z.string().optional(),
-      arrivalLocationId: z.string().optional(),
-      courseId: z.string().optional(),
-      transportationTypeId: z.string(),
-    })
-  ),
-  accommodation: z.array(
-    z.object({
-      accommodationTypeId: z.number(),
-      checkInDate: z.date(),
-      checkOutDate: z.date(),
-    })
-  ),
-});
-
-type FormData = z.infer<typeof carbonCalculatorSchema>;
+import {
+  carbonCalculatorSchema,
+  CarbonCalculatorFormData,
+} from "@/app/carbon-calculation/_type";
 
 const CarbonCalculator = () => {
   const [Funnel, Step, step, setStep] =
     useFunnel<CarbonCalculationStep>("PERSONNEL");
 
-  const form = useForm<FormData>({
+  const form = useForm<CarbonCalculatorFormData>({
     resolver: zodResolver(carbonCalculatorSchema),
     defaultValues: {
       personnel: 1,
@@ -150,7 +130,7 @@ const CarbonCalculator = () => {
 export default CarbonCalculator;
 
 interface CommonFormProps {
-  form: UseFormReturn<FormData>;
+  form: UseFormReturn<CarbonCalculatorFormData>;
   onClickNext: () => void;
 }
 

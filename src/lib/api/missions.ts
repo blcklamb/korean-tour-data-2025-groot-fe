@@ -8,6 +8,7 @@ import {
   PresignedUrlResponse,
   StampCollectionSummary,
   CourseVisitStamp,
+  CompleteMissionRequest,
 } from "@/types";
 
 export interface MissionListResponse {
@@ -34,7 +35,7 @@ export const missionsApi = {
     return apiClient.get<MissionListResponse>(endpoint);
   },
 
-  completeMission: (missionId: number, formData: FormData) => {
+  completeMission: (missionId: number, formData: CompleteMissionRequest) => {
     return apiClient.post<MissionCompletionResult>(
       `/missions/${missionId}/complete`,
       formData,
