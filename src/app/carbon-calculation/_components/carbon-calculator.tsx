@@ -144,7 +144,6 @@ const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
       { participantCount: form.getValues().personnel },
       {
         onSuccess: (data) => {
-          console.log("Created session:", data);
           form.setValue("sessionId", data.sessionId);
           onClickNext();
         },
@@ -231,8 +230,7 @@ const RouteEcoCoursesStep = ({
         },
       },
       {
-        onSuccess: (data) => {
-          console.log("Routes saved:", data);
+        onSuccess: () => {
           onClickNext();
         },
         onError: (error) => {
@@ -530,8 +528,7 @@ const AccommodationStep = ({
         },
       },
       {
-        onSuccess: (data) => {
-          console.log("Accommodations saved:", data);
+        onSuccess: () => {
           onClickNext();
           router.replace("/carbon-calculation/result/" + sessionId);
         },

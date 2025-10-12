@@ -25,11 +25,10 @@ interface MissionSubmitDialogProps {
 export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
   const { missionId } = props;
 
-  const isAuthorized = tokenStorage.isAuthenticated(); // TODO: 권한 체크 로직 추가
+  const isAuthorized = tokenStorage.isAuthenticated();
 
   const completionMutation = useMissionCompletion({
-    onSuccess: (result) => {
-      console.log(result);
+    onSuccess: () => {
       toast.success("미션 인증을 성공했습니다!");
     },
   });
@@ -65,8 +64,6 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
     );
     form.reset();
   };
-
-  console.log("isAuthorized", isAuthorized);
 
   return (
     <Dialog>
