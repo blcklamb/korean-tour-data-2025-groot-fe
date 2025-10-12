@@ -68,6 +68,7 @@ export interface MissionFeedItem {
   likeCount: number;
   isLiked: boolean;
   createdAt: string;
+  content?: string;
 }
 
 export interface MissionHistoryDetail {

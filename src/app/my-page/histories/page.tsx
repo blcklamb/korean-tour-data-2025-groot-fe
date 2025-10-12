@@ -7,18 +7,13 @@ import {
   useMissionHistories,
   useMissionHistoryLike,
 } from "@/hooks/queries/useMissionSystem";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ThumbsUp } from "lucide-react";
 import { MissionHistorySummary } from "@/types";
 import { LoginRequired } from "@/components/auth/login-required";
 import { tokenStorage } from "@/lib/api/auth";
+import { formatRelativeDate } from "@/lib/date";
 
 export default function MyMissionHistoriesPage() {
   const router = useRouter();
@@ -95,13 +90,7 @@ export default function MyMissionHistoriesPage() {
         내가 인증한 친환경 미션 기록을 모두 확인할 수 있습니다.
       </p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>인증 기록 목록</CardTitle>
-          <CardDescription>
-            상세 정보를 보려면 기록을 선택하거나 좋아요로 공감을 표현해보세요.
-          </CardDescription>
-        </CardHeader>
+      <Card className="py-4">
         <CardContent className="space-y-4">
           {historyQuery.isLoading ? (
             <HistoryLoadingState />
@@ -148,13 +137,12 @@ function HistoryCard({
               {data.mission.icon} {data.mission.name}
             </span>
             <span>
-              {new Date(data.createdAt).toLocaleString()} · 보상 {data.rewardCarbonEmission.toFixed(1)}kg CO₂e
+              {formatRelativeDate(data.createdAt)} · 보상{" "}
+              {data.rewardCarbonEmission.toFixed(1)}kg CO₂e
             </span>
           </div>
           {data.content && (
-            <p className="text-sm text-muted-foreground/90">
-              {data.content}
-            </p>
+            <p className="text-sm text-muted-foreground/90">{data.content}</p>
           )}
         </div>
 
@@ -168,7 +156,9 @@ function HistoryCard({
             onClick={onLike}
             disabled={isLiking}
             className={
-              data.isLiked ? "text-emerald-600 hover:text-emerald-600" : undefined
+              data.isLiked
+                ? "text-emerald-600 hover:text-emerald-600"
+                : undefined
             }
           >
             {isLiking ? (
