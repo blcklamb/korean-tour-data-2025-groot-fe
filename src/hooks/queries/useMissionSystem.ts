@@ -13,6 +13,7 @@ import {
 } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import {
+  CompleteMissionRequest,
   CourseVisitStamp,
   MissionCompletionResult,
   MissionFeedItem,
@@ -260,7 +261,7 @@ export const useMissionCompletion = (
   options?: UseMutationOptions<
     MissionCompletionResult,
     ApiError,
-    { missionId: number; formData: FormData }
+    { missionId: number; formData: CompleteMissionRequest }
   >
 ) => {
   const { onSuccess, onError, onSettled, ...restOptions } = options ?? {};

@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, MapPin, Tag, Upload } from "lucide-react";
 import { MissionListItem, MissionCompletionResult } from "@/types";
 import { useRouter } from "next/navigation";
+import { MissionSubmitDialog } from "./_components/mission-submit-dialog";
 
 function getUniqueTags(missions: MissionListItem[]): string[] {
   const tags = new Set<string>();
@@ -345,14 +346,7 @@ function MissionCard({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Button
-          variant={isActive ? "default" : "secondary"}
-          className="w-full flex items-center gap-2"
-          onClick={onSelect}
-        >
-          <Upload className="h-4 w-4" />
-          {isActive ? "인증 폼 닫기" : "미션 인증하기"}
-        </Button>
+        <MissionSubmitDialog missionId={mission.id} />
       </CardContent>
     </Card>
   );
