@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { Mission, Badge, User, UpdateProfileRequest } from "@/types";
+import { Mission, Badge, User, UpdateProfileRequest, UserBadge } from "@/types";
 import { PaginationParams, PaginatedResponse } from "@/types/api";
 
 // 미션 관련 API
@@ -62,16 +62,13 @@ export const missionApi = {
 // 배지 관련 API
 export const badgeApi = {
   // 사용자의 배지 조회
-  getUserBadges: (userId: string) => {
-    return apiClient.get<Badge[]>(`/users/${userId}/badges`);
+  getUserBadges: () => {
+    return apiClient.get<UserBadge>(`/users/badges`);
   },
 
   // 모든 배지 조회
-  getAllBadges: (category?: Badge["category"]) => {
-    const searchParams = category
-      ? new URLSearchParams({ category })
-      : new URLSearchParams();
-    return apiClient.get<Badge[]>(`/badges?${searchParams.toString()}`);
+  getAllBadges: () => {
+    return apiClient.get<Badge[]>(`/badges`);
   },
 
   // 특정 배지 조회

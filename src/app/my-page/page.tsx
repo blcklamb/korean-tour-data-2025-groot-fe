@@ -22,14 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, PenSquare, Share2 } from "lucide-react";
+import { Loader2, PenSquare, Share2, Award } from "lucide-react";
 import { useCurrentUser } from "@/hooks/queries/useAuth";
-import { useUpdateUserProfile } from "@/hooks/queries/useUser";
+import { useAllBadges, useUpdateUserProfile } from "@/hooks/queries/useUser";
 import { LoginRequired } from "@/components/auth/login-required";
 import { tokenStorage } from "@/lib/api/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import { missionsApi } from "@/lib/api";
+import type { Badge } from "@/types";
+import Image from "next/image";
 
 type ProfileFormState = {
   nickname: string;
@@ -67,6 +69,14 @@ export default function MyPage() {
   const [formState, setFormState] = useState<ProfileFormState | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+
+  const {
+    data: allBadges,
+    isLoading: isAllBadgesLoading,
+    isError: isAllBadgesError,
+  } = useAllBadges(undefined, {
+    enabled: isAuthenticated,
+  });
 
   const previewObjectUrlRef = useRef<string | null>(null);
   const clearPreviewObjectUrl = useCallback(() => {
@@ -116,6 +126,65 @@ export default function MyPage() {
   const primaryBadge = useMemo(() => {
     return currentUser?.badges?.find((badge) => badge.unlocked) ?? null;
   }, [currentUser?.badges]);
+
+  const unlockedBadgeIds = useMemo(() => {
+    return new Set(
+      (currentUser?.badges ?? [])
+        .filter((badge) => badge.unlocked)
+        .map((badge) => badge.id)
+    );
+  }, [currentUser?.badges]);
+
+  const badgeCollection = useMemo<Badge[]>(() => {
+    if (allBadges && allBadges.length > 0) {
+      return allBadges.map((badge) => ({
+        ...badge,
+        unlocked: unlockedBadgeIds.has(badge.id) || badge.unlocked,
+      }));
+    }
+
+    if (currentUser?.badges) {
+      return currentUser.badges.map((badge) => ({
+        ...badge,
+        unlocked: badge.unlocked,
+      }));
+    }
+
+    return [];
+  }, [allBadges, currentUser?.badges, unlockedBadgeIds]);
+
+  const sortedBadgeCollection = useMemo<Badge[]>(() => {
+    const getUnlockedTime = (badge: Badge) => {
+      if (!badge.unlockedAt) return 0;
+      const timestamp = new Date(badge.unlockedAt).getTime();
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    };
+
+    return [...badgeCollection].sort((a, b) => {
+      if (a.unlocked !== b.unlocked) {
+        return Number(b.unlocked) - Number(a.unlocked);
+      }
+
+      if (a.unlocked && b.unlocked) {
+        return getUnlockedTime(b) - getUnlockedTime(a);
+      }
+
+      return a.name.localeCompare(b.name, "ko");
+    });
+  }, [badgeCollection]);
+
+  const displayedBadges = useMemo<Badge[]>(() => {
+    return sortedBadgeCollection.slice(0, 8);
+  }, [sortedBadgeCollection]);
+
+  const badgeCounts = useMemo(() => {
+    return {
+      unlocked: badgeCollection.filter((badge) => badge.unlocked).length,
+      total:
+        allBadges?.length ??
+        (badgeCollection.length > 0 ? badgeCollection.length : undefined),
+    };
+  }, [allBadges?.length, badgeCollection]);
 
   const levelLabel = currentUser?.level
     ? `Lv.${currentUser.level}`
@@ -192,7 +261,6 @@ export default function MyPage() {
         prev
           ? {
               ...prev,
-              profileImagePreview: presignedResponse.data.fileUrl,
               uploadedProfileImageUrl: presignedResponse.data.uploadUrl,
               removeProfileImage: false,
             }
@@ -345,7 +413,17 @@ export default function MyPage() {
                 <p className="text-sm text-muted-foreground">{displayLevel}</p>
                 {primaryBadge ? (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{primaryBadge.icon}</span>
+                    {primaryBadge.iconUrl ? (
+                      <Image
+                        src={primaryBadge.iconUrl}
+                        alt={primaryBadge.name}
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 object-contain"
+                      />
+                    ) : (
+                      <span aria-hidden="true">🏅</span>
+                    )}
                     <span>대표 배지</span>
                   </div>
                 ) : null}
@@ -384,6 +462,14 @@ export default function MyPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <BadgeCollectionCard
+        badges={displayedBadges}
+        badgeCounts={badgeCounts}
+        isLoading={isAllBadgesLoading}
+        isError={isAllBadgesError}
+        onViewAll={() => router.push("/badges")}
+      />
 
       <Dialog
         open={isEditOpen}
@@ -545,6 +631,101 @@ function ProfileAvatar({
   return (
     <div className="flex h-16 w-16 items-center justify-center rounded-full border bg-muted text-lg font-semibold">
       {initial}
+    </div>
+  );
+}
+
+function BadgeCollectionCard({
+  badges,
+  badgeCounts,
+  isLoading,
+  isError,
+  onViewAll,
+}: {
+  badges: Badge[];
+  badgeCounts: { unlocked: number; total?: number };
+  isLoading: boolean;
+  isError: boolean;
+  onViewAll: () => void;
+}) {
+  const totalLabel = badgeCounts.total !== undefined ? badgeCounts.total : "--";
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+            <Award className="h-4 w-4 text-purple-500" />
+            <span>뱃지 컬렉션</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {isLoading
+              ? "불러오는 중..."
+              : `${badgeCounts.unlocked}/${totalLabel}`}
+          </span>
+        </div>
+
+        {isError ? (
+          <div className="rounded-md border border-dashed border-destructive/40 bg-destructive/10 p-4 text-xs text-destructive">
+            뱃지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
+          </div>
+        ) : isLoading && badges.length === 0 ? (
+          <div className="grid grid-cols-4 gap-3">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-14 animate-pulse rounded-xl border border-dashed border-muted bg-muted/30"
+              />
+            ))}
+          </div>
+        ) : badges.length > 0 ? (
+          <div className="grid grid-cols-4 gap-3">
+            {badges.map((badge) => (
+              <BadgeCollectionItem key={badge.id} badge={badge} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-md border border-dashed p-4 text-xs text-muted-foreground">
+            아직 획득 가능한 뱃지가 없습니다.
+          </div>
+        )}
+
+        <Button variant="outline" className="w-full" onClick={onViewAll}>
+          뱃지 수집 현황
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function BadgeCollectionItem({ badge }: { badge: Badge }) {
+  const isUnlocked = badge.unlocked;
+
+  return (
+    <div
+      className={`flex h-16 items-center justify-center rounded-xl border text-2xl transition-colors ${
+        isUnlocked
+          ? "border-emerald-300 bg-emerald-50 text-emerald-600 shadow-sm"
+          : "border border-dashed border-muted-foreground/30 bg-muted/10 text-muted-foreground"
+      }`}
+      title={badge.name}
+    >
+      {badge.iconUrl ? (
+        <Image
+          src={badge.iconUrl}
+          alt={badge.name}
+          width={32}
+          height={32}
+          className="h-8 w-8 object-contain"
+        />
+      ) : (
+        <span className="text-xl" aria-hidden="true">
+          🏅
+        </span>
+      )}
+      <span className="sr-only">
+        {badge.name} {isUnlocked ? "획득 완료" : "미획득"}
+      </span>
     </div>
   );
 }
