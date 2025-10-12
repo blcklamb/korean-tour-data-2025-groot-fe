@@ -43,6 +43,11 @@ type ProfileFormState = {
   removeProfileImage: boolean;
 };
 
+type BadgeWithUnlock = Badge & {
+  unlocked?: boolean;
+  unlockedAt?: string;
+};
+
 const createFormStateFromUser = (
   user: ReturnType<typeof useCurrentUser>["data"]
 ): ProfileFormState => {
@@ -123,38 +128,42 @@ export default function MyPage() {
     },
   });
 
-  const primaryBadge = useMemo(() => {
-    return currentUser?.badges?.find((badge) => badge.unlocked) ?? null;
+  const currentUserBadges = useMemo<BadgeWithUnlock[]>(() => {
+    return (currentUser?.badges as BadgeWithUnlock[]) ?? [];
   }, [currentUser?.badges]);
+
+  const primaryBadge = useMemo<BadgeWithUnlock | null>(() => {
+    return currentUserBadges.find((badge) => badge.unlocked) ?? null;
+  }, [currentUserBadges]);
 
   const unlockedBadgeIds = useMemo(() => {
     return new Set(
-      (currentUser?.badges ?? [])
+      currentUserBadges
         .filter((badge) => badge.unlocked)
         .map((badge) => badge.id)
     );
-  }, [currentUser?.badges]);
+  }, [currentUserBadges]);
 
-  const badgeCollection = useMemo<Badge[]>(() => {
+  const badgeCollection = useMemo<BadgeWithUnlock[]>(() => {
     if (allBadges && allBadges.length > 0) {
       return allBadges.map((badge) => ({
         ...badge,
-        unlocked: unlockedBadgeIds.has(badge.id) || badge.unlocked,
+        unlocked: unlockedBadgeIds.has(badge.id),
       }));
     }
 
-    if (currentUser?.badges) {
-      return currentUser.badges.map((badge) => ({
+    if (currentUserBadges.length > 0) {
+      return currentUserBadges.map((badge) => ({
         ...badge,
-        unlocked: badge.unlocked,
+        unlocked: Boolean(badge.unlocked),
       }));
     }
 
     return [];
-  }, [allBadges, currentUser?.badges, unlockedBadgeIds]);
+  }, [allBadges, currentUserBadges, unlockedBadgeIds]);
 
-  const sortedBadgeCollection = useMemo<Badge[]>(() => {
-    const getUnlockedTime = (badge: Badge) => {
+  const sortedBadgeCollection = useMemo<BadgeWithUnlock[]>(() => {
+    const getUnlockedTime = (badge: BadgeWithUnlock) => {
       if (!badge.unlockedAt) return 0;
       const timestamp = new Date(badge.unlockedAt).getTime();
       return Number.isFinite(timestamp) ? timestamp : 0;
@@ -173,7 +182,7 @@ export default function MyPage() {
     });
   }, [badgeCollection]);
 
-  const displayedBadges = useMemo<Badge[]>(() => {
+  const displayedBadges = useMemo<BadgeWithUnlock[]>(() => {
     return sortedBadgeCollection.slice(0, 8);
   }, [sortedBadgeCollection]);
 
@@ -642,7 +651,7 @@ function BadgeCollectionCard({
   isError,
   onViewAll,
 }: {
-  badges: Badge[];
+  badges: BadgeWithUnlock[];
   badgeCounts: { unlocked: number; total?: number };
   isLoading: boolean;
   isError: boolean;
@@ -698,7 +707,7 @@ function BadgeCollectionCard({
   );
 }
 
-function BadgeCollectionItem({ badge }: { badge: Badge }) {
+function BadgeCollectionItem({ badge }: { badge: BadgeWithUnlock }) {
   const isUnlocked = badge.unlocked;
 
   return (
