@@ -16,6 +16,7 @@ import { Loader2, MessageCircle, ThumbsUp, UserRound } from "lucide-react";
 import { MissionFeedItem } from "@/types";
 import { useRouter } from "next/navigation";
 import { getRouteLabel, ROUTES } from "@/lib/routes";
+import { formatRelativeDate } from "@/lib/date";
 
 export default function MissionsFeedPage() {
   const router = useRouter();
@@ -137,7 +138,7 @@ function MissionFeedCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{new Date(data.createdAt).toLocaleString()}</span>
+          <span>{formatRelativeDate(data.createdAt)}</span>
           <span className="flex items-center gap-1">
             <MessageCircle className="h-4 w-4" />
             공감 {data.likeCount}

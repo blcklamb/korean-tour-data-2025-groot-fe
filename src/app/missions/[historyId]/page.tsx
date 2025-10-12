@@ -14,13 +14,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ThumbsUp } from "lucide-react";
-import {
-  MissionBadgeReward,
-  MissionFeedItem,
-  MissionHistoryDetail,
-} from "@/types";
+import { MissionFeedItem, MissionHistoryDetail } from "@/types";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
+import { formatRelativeDate } from "@/lib/date";
 
 type MissionHistoryDetailPageProps = {
   params: {
@@ -84,7 +82,6 @@ export default function MissionHistoryDetailPage({
           sameMissions={detailQuery.data.sameMissions ?? []}
           nearByMissions={detailQuery.data.nearByMissions ?? []}
         />
-        <RewardBadgeCard badges={detailQuery.data.history.rewardBadge ?? []} />
       </div>
     );
   };
@@ -111,7 +108,7 @@ function MissionHistoryDetailCard({
   isLiking: boolean;
 }) {
   const likeLabel = detail.history.isLiked ? "좋아요 취소" : "좋아요";
-  const createdAt = new Date(detail.history.createdAt).toLocaleString();
+  const createdAt = formatRelativeDate(detail.history.createdAt);
   const locationInfo = detail.history.sigungu;
   const badges = detail.history.rewardBadge;
 
@@ -136,9 +133,12 @@ function MissionHistoryDetailCard({
           <CardTitle className="text-lg font-semibold">
             {detail.history.mission.icon} {detail.history.mission.name}
           </CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
-            #{detail.history.mission.tag} · {createdAt}
-          </CardDescription>
+          <div className="flex items-center gap-2">
+            <MissionTagBadge tag={detail.history.mission.tag} />
+            <CardDescription className="text-xs text-muted-foreground">
+              {createdAt}
+            </CardDescription>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-5 text-sm">
@@ -272,72 +272,49 @@ function RelatedMissionsCard({
   );
 }
 
-function RewardBadgeCard({ badges }: { badges: MissionBadgeReward[] }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>획득한 배지</CardTitle>
-        <CardDescription>
-          미션 인증으로 획득한 배지를 확인해보세요.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {badges.length ? (
-          <div className="grid gap-3 md:grid-cols-2">
-            {badges.map((badge) => (
-              <div
-                key={badge.id}
-                className="flex items-center gap-3 rounded-md border bg-muted/20 p-3"
-              >
-                <div
-                  className="h-12 w-12 flex-shrink-0 rounded-full border bg-muted bg-cover bg-center"
-                  style={
-                    badge.iconUrl
-                      ? { backgroundImage: `url(${badge.iconUrl})` }
-                      : undefined
-                  }
-                />
-                <div className="flex-1 text-sm">
-                  <p className="font-semibold text-gray-900">{badge.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    배지 ID: {badge.id}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            아직 획득한 배지가 없습니다.
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 function SimilarList({ items }: { items: MissionFeedItem[] }) {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <div
-          key={`${item.id}-${item.user.userId}`}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-muted/20 px-3 py-3 text-xs"
-        >
-          <div>
-            <p className="font-medium text-gray-900">
-              {item.mission.icon} {item.mission.name}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              #{item.mission.tag} · {new Date(item.createdAt).toLocaleString()}
-            </p>
+        <Link key={`${item.id}-${item.user.userId}`} href={`/missions/${item.id}`} className="group block">
+          <div className="flex flex-wrap items-start justify-between gap-3 rounded-md border bg-muted/20 px-3 py-3 text-xs transition hover:border-emerald-300 hover:bg-emerald-50/50">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium text-gray-900">
+                {item.mission.icon} {item.mission.name}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                #{item.mission.tag} · {formatRelativeDate(item.createdAt)}
+              </p>
+              {item.content ? (
+                <p
+                  className="mt-1 text-xs text-muted-foreground"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {item.content}
+                </p>
+              ) : null}
+            </div>
+            <div className="text-right text-[11px] text-muted-foreground">
+              <p>좋아요 {item.likeCount}</p>
+              <p>작성자 {item.user.nickname}</p>
+            </div>
           </div>
-          <div className="text-right text-[11px] text-muted-foreground">
-            <p>좋아요 {item.likeCount}</p>
-            <p>작성자 {item.user.nickname}</p>
-          </div>
-        </div>
+        </Link>
       ))}
     </div>
+  );
+}
+
+function MissionTagBadge({ tag }: { tag: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+      #{tag}
+    </span>
   );
 }

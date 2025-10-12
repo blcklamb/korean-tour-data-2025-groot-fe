@@ -10,6 +10,7 @@ import { Leaf, Loader2, MapPin, Phone, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { AppHeader } from "@/components/ui/header";
 import { getRouteHref, ROUTES } from "@/lib/routes";
+import { formatRelativeDate } from "@/lib/date";
 import { EcoTourCourseDetail } from "@/types";
 
 const MOCK_COURSE: EcoTourCourseDetail = {
@@ -160,7 +161,7 @@ export default function EcoTourCourseDetailPage() {
                 CO₂e
               </span>
               <span>
-                등록일 {new Date(displayCourse.createdAt).toLocaleDateString()}
+                등록일 {formatRelativeDate(displayCourse.createdAt)}
               </span>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
