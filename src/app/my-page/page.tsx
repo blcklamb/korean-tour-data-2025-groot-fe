@@ -436,6 +436,7 @@ export default function MyPage() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <QuickLink href="/mission" label="미션 인증 페이지" />
+              <QuickLink href="/my-page/histories" label="나의 인증 모음" />
               <QuickLink href="/missions" label="친환경 미션 피드" />
               <QuickLink href="/eco-tourism-courses" label="생태관광 코스" />
             </CardContent>
