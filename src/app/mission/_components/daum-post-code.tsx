@@ -89,7 +89,7 @@ export const DaumPostCodeButton = (props: DaumPostCodeButtonProps) => {
           }));
         },
         (error) => {
-          toast(`위치 정보를 가져오는데 실패했습니다. ${error.message}]}`);
+          toast(`위치 정보를 가져오는데 실패했습니다. ${error.message}}`);
         }
       );
     } else {
