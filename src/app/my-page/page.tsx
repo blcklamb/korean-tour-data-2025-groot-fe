@@ -197,7 +197,7 @@ export default function MyPage() {
           ? {
               ...prev,
               profileImagePreview: presignedResponse.data.fileUrl,
-              uploadedProfileImageUrl: presignedResponse.data.fileUrl,
+              uploadedProfileImageUrl: presignedResponse.data.uploadUrl,
               removeProfileImage: false,
             }
           : prev
