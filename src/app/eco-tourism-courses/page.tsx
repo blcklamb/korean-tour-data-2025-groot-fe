@@ -216,7 +216,7 @@ function CourseCard({ course }: { course: EcoTourCourseSummary }) {
       <div className="h-40 w-full bg-gray-100">
         {course.thumbnailUrl ? (
           <Image
-            src={course.thumbnailUrl}
+            src={course.thumbnailUrl.trimEnd()}
             alt={course.title}
             className="hidden h-full w-full object-cover sm:block"
             width={500}

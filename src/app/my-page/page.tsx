@@ -73,14 +73,14 @@ export default function MyPage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading, isHydrated } = useAuth();
 
   const {
     data: allBadges,
     isLoading: isAllBadgesLoading,
     isError: isAllBadgesError,
   } = useAllBadges({
-    enabled: isLoggedIn,
+    enabled: isHydrated && isLoggedIn, // 하이드레이션 후에만 실행
   });
 
   const previewObjectUrlRef = useRef<string | null>(null);
@@ -342,7 +342,8 @@ export default function MyPage() {
     }
   };
 
-  if (!isLoggedIn || isUserLoading) {
+  // 로딩 중이거나 하이드레이션 중일 때
+  if (isUserLoading || isAuthLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
@@ -357,6 +358,7 @@ export default function MyPage() {
     );
   }
 
+  // 인증되지 않은 경우
   if (!isLoggedIn) {
     return (
       <div className="space-y-6 pb-10">
@@ -370,6 +372,7 @@ export default function MyPage() {
     );
   }
 
+  // 사용자 정보 없음
   if (!currentUser) {
     return (
       <div className="space-y-6 pb-10">

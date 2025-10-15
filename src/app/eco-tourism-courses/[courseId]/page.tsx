@@ -5,13 +5,18 @@ import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEcoTourCourse, useToggleEcoTourCourseLike } from "@/hooks/queries";
+import {
+  useAuth,
+  useEcoTourCourse,
+  useToggleEcoTourCourseLike,
+} from "@/hooks/queries";
 import { Leaf, Loader2, MapPin, Phone, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { AppHeader } from "@/components/ui/header";
 import { getRouteHref, ROUTES } from "@/lib/routes";
 import { formatRelativeDate } from "@/lib/date";
 import { EcoTourCourseDetail } from "@/types";
+import { toast } from "sonner";
 
 const MOCK_COURSE: EcoTourCourseDetail = {
   id: 0,
@@ -76,6 +81,8 @@ export default function EcoTourCourseDetailPage() {
 
   const toggleLikeMutation = useToggleEcoTourCourseLike();
 
+  const { isLoggedIn } = useAuth();
+
   const shouldUseMockData = !isLoading && !course;
   const displayCourse: EcoTourCourseDetail = course ?? MOCK_COURSE;
 
@@ -85,6 +92,10 @@ export default function EcoTourCourseDetailPage() {
   }, [displayCourse]);
 
   const handleToggleLike = () => {
+    if (!isLoggedIn) {
+      toast.error("좋아요는 로그인 후 이용 가능합니다.");
+      return;
+    }
     if (shouldUseMockData || !course) return;
     toggleLikeMutation.mutate({ courseId: course.id });
   };
@@ -137,7 +148,7 @@ export default function EcoTourCourseDetailPage() {
           <div className="h-56 w-full bg-gray-100">
             {displayCourse.thumbnailUrl ? (
               <Image
-                src={displayCourse.thumbnailUrl}
+                src={displayCourse.thumbnailUrl.trimEnd()}
                 alt={displayCourse.title}
                 className="h-full w-full object-cover"
                 width={500}
@@ -160,9 +171,7 @@ export default function EcoTourCourseDetailPage() {
                 총 탄소 배출량 {displayCourse.totalCarbonEmission.toFixed(1)}kg
                 CO₂e
               </span>
-              <span>
-                등록일 {formatRelativeDate(displayCourse.createdAt)}
-              </span>
+              <span>등록일 {formatRelativeDate(displayCourse.createdAt)}</span>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-3xl font-bold text-gray-900">
@@ -200,7 +209,7 @@ export default function EcoTourCourseDetailPage() {
               <div className="h-40 w-full bg-gray-100">
                 {spot.thumbnailUrl ? (
                   <Image
-                    src={spot.thumbnailUrl}
+                    src={spot.thumbnailUrl.trimEnd()}
                     alt={spot.title}
                     className="h-full w-full object-cover"
                     width={500}

@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/queries";
 export default function MyMissionHistoriesPage() {
   const router = useRouter();
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
 
   const historyQuery = useMissionHistories({ enabled: isLoggedIn });
   const likeMutation = useMissionHistoryLike();
@@ -47,7 +47,7 @@ export default function MyMissionHistoriesPage() {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!isAuthLoading && !isLoggedIn) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader

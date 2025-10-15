@@ -118,12 +118,17 @@ export const tokenStorage = {
   setToken: (token: string): void => {
     if (typeof window !== "undefined") {
       localStorage.setItem("auth_token", token);
+      // 쿠키에도 저장 (서버사이드에서 접근 가능하도록)
+      document.cookie = `auth_token=${token}; path=/; max-age=86400; SameSite=Lax`;
     }
   },
 
   removeToken: (): void => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("auth_token");
+      // 쿠키도 제거
+      document.cookie =
+        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
   },
 
