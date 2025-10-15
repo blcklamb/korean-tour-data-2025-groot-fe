@@ -338,7 +338,7 @@ export interface Mission {
 
 // 배지 타입
 export interface Badge {
-  id: string;
+  id: number;
   name: string;
   criteria: string;
   description: string;
