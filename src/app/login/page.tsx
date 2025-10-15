@@ -1,25 +1,42 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import LogoIcon from "@/components/ui/logo";
 import LoginForm from "./_components/login-form";
-import LoginRedirectHandler from "./_components/login-redirect-handler";
+import { useAuth } from "@/hooks/queries";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
-  const [canShowLogin, setCanShowLogin] = useState(false);
+  const { isLoggedIn, isHydrated } = useAuth();
+  const router = useRouter();
 
-  if (!canShowLogin) {
+  useEffect(() => {
+    // 하이드레이션이 완료되고 로그인된 상태라면 홈으로 리다이렉트
+    if (isHydrated && isLoggedIn) {
+      router.replace("/");
+    }
+  }, [isLoggedIn, isHydrated, router]);
+
+  // 하이드레이션이 완료되지 않았다면 로딩 표시
+  if (!isHydrated) {
     return (
-      <>
-        <LoginRedirectHandler onCanShowLogin={setCanShowLogin} />
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
     );
   }
 
+  // 로그인된 사용자는 리다이렉트 중이므로 로딩 표시
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+  // 비로그인 사용자에게는 로그인 폼 표시
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <Card className="w-full max-w-md p-8 space-y-8">
