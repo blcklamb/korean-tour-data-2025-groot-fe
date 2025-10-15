@@ -1,5 +1,12 @@
 import { apiClient } from "./client";
-import { Mission, Badge, User, UpdateProfileRequest, UserBadge } from "@/types";
+import {
+  Mission,
+  Badge,
+  User,
+  UpdateProfileRequest,
+  UserBadge,
+  PresignedUrlResponse,
+} from "@/types";
 import { PaginationParams, PaginatedResponse } from "@/types/api";
 
 // 미션 관련 API
@@ -132,5 +139,15 @@ export const userApi = {
 
   updateProfile: (payload: UpdateProfileRequest) => {
     return apiClient.put<User>("/users/profile", payload);
+  },
+
+  getProfileUploadPresignedUrl: (params: {
+    fileName: string;
+    fileType: string;
+  }) => {
+    return apiClient.post<PresignedUrlResponse>(
+      "/users/profile/upload/presigned-url",
+      params
+    );
   },
 };

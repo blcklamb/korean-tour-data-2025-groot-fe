@@ -218,7 +218,7 @@ export const useLogout = (options?: {
  */
 export const useAuth = () => {
   const { data: user, isLoading, error } = useCurrentUser();
-  const isAuthenticated = tokenStorage.isAuthenticated();
+  const isAuthenticated = user?.id !== undefined;
 
   return {
     user,

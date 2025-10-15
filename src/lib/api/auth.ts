@@ -41,7 +41,8 @@ export const exchangeKakaoTokenWithCode = async (
 
   if (!response.ok) {
     const message =
-      (payload && (payload.error_description || payload.error || payload.message)) ??
+      (payload &&
+        (payload.error_description || payload.error || payload.message)) ??
       "카카오 토큰 교환에 실패했습니다.";
     throw new Error(message);
   }
