@@ -32,7 +32,7 @@ export default function MyMissionHistoriesPage() {
     likeMutation.mutate({ historyId });
   };
 
-  if (!historyQuery.isLoading) {
+  if (historyQuery.isLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
