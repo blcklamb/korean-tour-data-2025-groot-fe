@@ -215,15 +215,13 @@ function CourseCard({ course }: { course: EcoTourCourseSummary }) {
     <Card className="overflow-hidden">
       <div className="h-40 w-full bg-gray-100">
         {course.thumbnailUrl ? (
-          <>
-            <Image
-              src={course.thumbnailUrl}
-              alt={course.title}
-              className="hidden h-full w-full object-cover sm:block"
-              width={500}
-              height={200}
-            />
-          </>
+          <Image
+            src={course.thumbnailUrl}
+            alt={course.title}
+            className="hidden h-full w-full object-cover sm:block"
+            width={500}
+            height={200}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
             이미지 없음
