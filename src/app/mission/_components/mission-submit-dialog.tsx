@@ -236,7 +236,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
       )}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{missionTitle} 미션 제출</DialogTitle>
+          <DialogTitle>{missionTitle ? `${missionTitle} 미션 제출` : '미션 제출'}</DialogTitle>
           <DialogDescription>
             미션을 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.
           </DialogDescription>
