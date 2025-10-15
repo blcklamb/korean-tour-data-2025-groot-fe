@@ -10,9 +10,7 @@ interface UseLoginRedirectOptions {
   redirectTo?: string | null;
 }
 
-export const useLoginRedirect = (
-  options?: UseLoginRedirectOptions
-) => {
+export const useLoginRedirect = (options?: UseLoginRedirectOptions) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

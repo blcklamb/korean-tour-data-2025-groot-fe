@@ -1,9 +1,25 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useState } from "react";
 import { Card } from "@/components/ui/card";
 import LogoIcon from "@/components/ui/logo";
 import LoginForm from "./_components/login-form";
+import LoginRedirectHandler from "./_components/login-redirect-handler";
 
 export default function LoginPage() {
+  const [canShowLogin, setCanShowLogin] = useState(false);
+
+  if (!canShowLogin) {
+    return (
+      <>
+        <LoginRedirectHandler onCanShowLogin={setCanShowLogin} />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <Card className="w-full max-w-md p-8 space-y-8">

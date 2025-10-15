@@ -24,7 +24,7 @@ export function CourseSelect(props: CourseSelectProps) {
             <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
               {item.thumbnailUrl.startsWith("http") ? (
                 <Image
-                  src={!error ? item.thumbnailUrl : "/groot_logo.png"}
+                  src={!error ? item.thumbnailUrl.trimEnd() : "/groot_logo.png"}
                   alt={item.title}
                   width={40}
                   height={40}

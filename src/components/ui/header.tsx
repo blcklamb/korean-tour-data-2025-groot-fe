@@ -6,7 +6,8 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import LogoIcon from "./logo";
-import { useCurrentUser } from "@/hooks/queries";
+import { useAuth, useCurrentUser } from "@/hooks/queries";
+import { Loader2 } from "lucide-react";
 
 interface AppHeaderProps {
   title?: string;
@@ -19,22 +20,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   showBackButton = false,
   onBackClick,
 }) => {
-  const router = useRouter();
-
-  const { data: user } = useCurrentUser();
-  const isLogin = user?.id !== undefined;
-
-  const onLoginClick = () => {
-    router.push(ROUTES.LOGIN);
-  };
+  const { isLoggedIn } = useAuth();
 
   // 되도록 Logo가 있을 때는 title이 없어야 함
   const DYNAMIC_PADDING = useMemo(() => {
     if (showBackButton) {
-      if (isLogin) return 16;
+      if (isLoggedIn) return 16;
       return 48;
     }
-  }, [showBackButton, isLogin]);
+  }, [showBackButton, isLoggedIn]);
 
   return (
     <header className="w-full bg-white border-b border-gray-200">
@@ -72,26 +66,49 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* 오른쪽 영역 */}
         <div className="flex items-center">
-          {isLogin && (
-            <a
-              href={ROUTES.MY_PAGE}
-              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold"
-            >
-              {user.nickname[0]}
-            </a>
-          )}
-          {!isLogin && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLoginClick}
-              className="text-green-600"
-            >
-              로그인
-            </Button>
-          )}
+          <RightSection />
         </div>
       </div>
     </header>
+  );
+};
+
+const RightSection = () => {
+  const router = useRouter();
+
+  const { data: user, isLoading } = useCurrentUser();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+
+  const onLoginClick = () => {
+    router.push(ROUTES.LOGIN);
+  };
+
+  if (isLoading || isAuthLoading) {
+    return (
+      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onLoginClick}
+        className="text-green-600"
+      >
+        로그인
+      </Button>
+    );
+  }
+  return (
+    <a
+      href={ROUTES.MY_PAGE}
+      className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold"
+    >
+      {user?.nickname[0]}
+    </a>
   );
 };

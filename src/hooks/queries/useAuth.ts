@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   kakaoLogin,
   kakaoLoginWithToken,
@@ -23,10 +24,18 @@ import {
  * 현재 사용자 정보 조회
  */
 export const useCurrentUser = () => {
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setHasToken(tokenStorage.isAuthenticated());
+    setIsHydrated(true);
+  }, []);
+
   return useQuery({
     queryKey: queryKeys.auth.me(),
     queryFn: getCurrentUser,
-    enabled: tokenStorage.isAuthenticated(),
+    enabled: isHydrated && hasToken, // 하이드레이션 후에만 실행
     retry: false,
   });
 };
@@ -218,14 +227,25 @@ export const useLogout = (options?: {
  */
 export const useAuth = () => {
   const { data: user, isLoading, error } = useCurrentUser();
+  const [hasToken, setHasToken] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // 클라이언트에서만 토큰 확인
+  useEffect(() => {
+    setHasToken(tokenStorage.isAuthenticated());
+    setIsHydrated(true);
+  }, []);
+
   const isAuthenticated = user?.id !== undefined;
 
   return {
     user,
-    isLoading,
+    isLoading: isLoading || !isHydrated, // 하이드레이션 전까지는 로딩 상태
+    isHydrated,
     error,
     isAuthenticated,
-    isLoggedIn: isAuthenticated && !!user,
+    // 하이드레이션 완료 후 토큰과 인증 상태 확인
+    isLoggedIn: isHydrated && hasToken && (isLoading || isAuthenticated),
   };
 };
 
