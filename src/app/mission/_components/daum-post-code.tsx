@@ -134,13 +134,13 @@ export const DaumPostCodeButton = (props: DaumPostCodeButtonProps) => {
       )}
       {form.formState.errors &&
         (form.formState.errors.latitude || form.formState.errors.longitude) && (
-          <div className="text-sm text-red-500">
+          <div className="text-xs text-destructive">
             주소가 설정되지 않았습니다, 현재 주소 가져오기 버튼을 눌러 주소를
             가져와 주세요.
           </div>
         )}
       {!currentState.isLoading && isNotGyungbuk && (
-        <div className="text-sm text-red-500">
+        <div className="text-xs text-destructive">
           경북 내에 위치하지 않습니다. 인증은 경북 내에서만 가능합니다.
         </div>
       )}

@@ -104,7 +104,10 @@ function MissionCard({ mission }: { mission: MissionListItem }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <MissionSubmitDialog missionId={mission.id} />
+        <MissionSubmitDialog
+          missionId={mission.id}
+          missionTitle={mission.name}
+        />
       </CardContent>
     </Card>
   );

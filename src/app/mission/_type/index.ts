@@ -8,7 +8,7 @@ const missionSchema = z.object({
   imageUrls: z
     .array(z.string().url("유효한 이미지 URL이 아닙니다."))
     .max(3, "최대 3장의 사진만 업로드할 수 있습니다.")
-    .optional(),
+    .min(1, "최소 1장의 사진을 업로드해야 합니다."),
 });
 type MissionFormData = z.infer<typeof missionSchema>;
 

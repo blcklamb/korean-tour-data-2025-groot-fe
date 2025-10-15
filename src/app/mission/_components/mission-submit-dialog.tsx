@@ -21,14 +21,17 @@ import { missionsApi } from "@/lib/api";
 import { uploadFileToPresignedUrl } from "@/lib/presigned-upload";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface MissionSubmitDialogProps {
   missionId: number;
+  missionTitle?: string;
 }
 export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
-  const { missionId } = props;
+  const { missionId, missionTitle } = props;
 
   const { isLoggedIn } = useAuth();
+  const router = useRouter();
 
   const form = useForm<MissionFormData>({
     resolver: zodResolver(missionSchema),
@@ -46,9 +49,17 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const completionMutation = useMissionCompletion({
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("미션 인증을 성공했습니다!");
       setIsDialogOpen(false);
+      router.push(`/missions/${data.missionHistoryId}`);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "미션 인증에 실패했습니다. 잠시 후 다시 시도해주세요."
+      );
     },
   });
 
@@ -171,18 +182,15 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
 
     setImageUploadError(null);
 
-    completionMutation.mutate(
-      {
-        missionId,
-        formData: {
-          content: data.content,
-          latitude: data.latitude!,
-          longitude: data.longitude!,
-          imageUrls: data.imageUrls || [],
-        },
+    completionMutation.mutate({
+      missionId,
+      formData: {
+        content: data.content,
+        latitude: data.latitude!,
+        longitude: data.longitude!,
+        imageUrls: data.imageUrls || [],
       },
-      {}
-    );
+    });
     form.reset();
     handleResetImages({ markDirty: false });
   };
@@ -228,7 +236,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
       )}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>미션 제출</DialogTitle>
+          <DialogTitle>{missionTitle} 미션 제출</DialogTitle>
           <DialogDescription>
             미션을 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.
           </DialogDescription>
@@ -327,6 +335,11 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
                 >
                   업로드 초기화
                 </Button>
+              )}
+              {form.formState.errors.imageUrls && (
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.imageUrls.message}
+                </p>
               )}
             </div>
 
