@@ -188,7 +188,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
         content: data.content,
         latitude: data.latitude!,
         longitude: data.longitude!,
-        imageUrls: data.imageUrls || [],
+        imageUrls: data.imageUrls,
       },
     });
     form.reset();
