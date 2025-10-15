@@ -10,14 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useMissionCompletion } from "@/hooks/queries";
+import { useAuth, useMissionCompletion } from "@/hooks/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { DaumPostCodeButton } from "./daum-post-code";
 import { MissionFormData, missionSchema } from "../_type";
 import { toast } from "sonner";
-import { missionsApi, tokenStorage } from "@/lib/api";
+import { missionsApi } from "@/lib/api";
+import { uploadFileToPresignedUrl } from "@/lib/presigned-upload";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -27,7 +28,7 @@ interface MissionSubmitDialogProps {
 export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
   const { missionId } = props;
 
-  const isAuthorized = tokenStorage.isAuthenticated();
+  const { isLoggedIn } = useAuth();
 
   const form = useForm<MissionFormData>({
     resolver: zodResolver(missionSchema),
@@ -126,9 +127,13 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
           fileType: file.type || "image/jpeg",
         });
 
-        const { uploadUrl } = presignedResponse.data;
+        await uploadFileToPresignedUrl({
+          uploadUrl: presignedResponse.data.uploadUrl,
+          file,
+          contentType: file.type || "image/jpeg",
+        });
 
-        uploadedUrls.push(uploadUrl);
+        uploadedUrls.push(presignedResponse.data.fileUrl);
       }
 
       form.setValue("imageUrls", [...existingUrls, ...uploadedUrls], {
@@ -154,7 +159,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
   };
 
   const handleSubmit = (data: MissionFormData) => {
-    if (!isAuthorized) {
+    if (!isLoggedIn) {
       toast.error("미션 인증을 위해 로그인해주세요.");
       return;
     }
@@ -196,7 +201,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-      {isAuthorized ? (
+      {isLoggedIn ? (
         <DialogTrigger asChild>
           <Button
             variant="secondary"
@@ -211,7 +216,7 @@ export const MissionSubmitDialog = (props: MissionSubmitDialogProps) => {
           variant="secondary"
           className="w-full flex items-center gap-2"
           onClick={() => {
-            if (!isAuthorized) {
+            if (!isLoggedIn) {
               toast.error("미션 인증을 위해 로그인해주세요.");
               return;
             }
