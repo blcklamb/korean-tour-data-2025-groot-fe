@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, PenSquare, Share2, Award } from "lucide-react";
-import { useAuth, useCurrentUser } from "@/hooks/queries/useAuth";
+import { useAuth, useCurrentUser, useLogout } from "@/hooks/queries/useAuth";
 import { useAllBadges, useUpdateUserProfile } from "@/hooks/queries/useUser";
 import { LoginRequired } from "@/components/auth/login-required";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,6 +32,7 @@ import { userApi } from "@/lib/api";
 import { uploadFileToPresignedUrl } from "@/lib/presigned-upload";
 import type { Badge } from "@/types";
 import Image from "next/image";
+import { toast } from "sonner";
 
 type ProfileFormState = {
   nickname: string;
@@ -113,6 +114,12 @@ export default function MyPage() {
       clearPreviewObjectUrl();
       setFormState(null);
       setImageError(null);
+    },
+  });
+
+  const logout = useLogout({
+    onSuccess: () => {
+      toast.success("성공적으로 로그아웃되었습니다.");
     },
   });
 
@@ -342,6 +349,10 @@ export default function MyPage() {
     }
   };
 
+  const handleLogout = () => {
+    logout.mutate();
+  };
+
   // 로딩 중이거나 하이드레이션 중일 때
   if (isUserLoading || isAuthLoading) {
     return (
@@ -477,6 +488,9 @@ export default function MyPage() {
         isError={isAllBadgesError}
         onViewAll={() => router.push("/badges")}
       />
+      <Button variant={"link"} onClick={handleLogout}>
+        로그아웃
+      </Button>
 
       <Dialog
         open={isEditOpen}
