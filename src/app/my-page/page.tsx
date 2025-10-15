@@ -23,13 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, PenSquare, Share2, Award } from "lucide-react";
-import { useCurrentUser } from "@/hooks/queries/useAuth";
+import { useAuth, useCurrentUser } from "@/hooks/queries/useAuth";
 import { useAllBadges, useUpdateUserProfile } from "@/hooks/queries/useUser";
 import { LoginRequired } from "@/components/auth/login-required";
-import { tokenStorage } from "@/lib/api/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
-import { missionsApi } from "@/lib/api";
+import { userApi } from "@/lib/api";
+import { uploadFileToPresignedUrl } from "@/lib/presigned-upload";
 import type { Badge } from "@/types";
 import Image from "next/image";
 
@@ -68,19 +68,19 @@ export default function MyPage() {
 
   const queryClient = useQueryClient();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [formState, setFormState] = useState<ProfileFormState | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
+  const { isLoggedIn } = useAuth();
+
   const {
     data: allBadges,
     isLoading: isAllBadgesLoading,
     isError: isAllBadgesError,
-  } = useAllBadges(undefined, {
-    enabled: isAuthenticated,
+  } = useAllBadges({
+    enabled: isLoggedIn,
   });
 
   const previewObjectUrlRef = useRef<string | null>(null);
@@ -98,18 +98,6 @@ export default function MyPage() {
       URL.revokeObjectURL(previewObjectUrlRef.current);
     }
     previewObjectUrlRef.current = nextUrl;
-  }, []);
-
-  useEffect(() => {
-    const syncAuthState = () => {
-      setIsAuthenticated(tokenStorage.isAuthenticated());
-    };
-
-    syncAuthState();
-    setHasCheckedAuth(true);
-
-    window.addEventListener("storage", syncAuthState);
-    return () => window.removeEventListener("storage", syncAuthState);
   }, []);
 
   useEffect(() => {
@@ -260,21 +248,28 @@ export default function MyPage() {
     setIsUploadingImage(true);
 
     try {
-      const presignedResponse = await missionsApi.getUploadPresignedUrl({
+      const presignedResponse = await userApi.getProfileUploadPresignedUrl({
         fileName: file.name,
         fileType: file.type || "image/jpeg",
       });
 
-      clearPreviewObjectUrl();
+      await uploadFileToPresignedUrl({
+        uploadUrl: presignedResponse.data.uploadUrl,
+        file,
+        contentType: file.type || "image/jpeg",
+      });
+
       setFormState((prev) =>
         prev
           ? {
               ...prev,
-              uploadedProfileImageUrl: presignedResponse.data.uploadUrl,
+              profileImagePreview: presignedResponse.data.fileUrl,
+              uploadedProfileImageUrl: presignedResponse.data.fileUrl,
               removeProfileImage: false,
             }
           : prev
       );
+      clearPreviewObjectUrl();
     } catch (error) {
       console.error("Failed to upload profile image", error);
       setImageError(
@@ -347,7 +342,7 @@ export default function MyPage() {
     }
   };
 
-  if (!hasCheckedAuth || isUserLoading) {
+  if (!isLoggedIn || isUserLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
@@ -362,7 +357,7 @@ export default function MyPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isLoggedIn) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/ui/header";
 import {
@@ -12,30 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Loader2, ThumbsUp } from "lucide-react";
 import { MissionHistorySummary } from "@/types";
 import { LoginRequired } from "@/components/auth/login-required";
-import { tokenStorage } from "@/lib/api/auth";
 import { formatRelativeDate } from "@/lib/date";
+import { useAuth } from "@/hooks/queries";
 
 export default function MyMissionHistoriesPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
-  useEffect(() => {
-    const syncAuthState = () => {
-      setIsAuthenticated(tokenStorage.isAuthenticated());
-    };
+  const { isLoggedIn } = useAuth();
 
-    syncAuthState();
-    setHasCheckedAuth(true);
-
-    window.addEventListener("storage", syncAuthState);
-
-    return () => {
-      window.removeEventListener("storage", syncAuthState);
-    };
-  }, []);
-
-  const historyQuery = useMissionHistories({ enabled: isAuthenticated });
+  const historyQuery = useMissionHistories({ enabled: isLoggedIn });
   const likeMutation = useMissionHistoryLike();
   const pendingHistoryId = likeMutation.variables?.historyId;
   const histories: MissionHistorySummary[] = historyQuery.data ?? [];
@@ -48,7 +32,7 @@ export default function MyMissionHistoriesPage() {
     likeMutation.mutate({ historyId });
   };
 
-  if (!hasCheckedAuth) {
+  if (!historyQuery.isLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
@@ -63,7 +47,7 @@ export default function MyMissionHistoriesPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isLoggedIn) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
