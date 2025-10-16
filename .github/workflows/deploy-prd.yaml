@@ -1,6 +1,9 @@
 name: 🚀 Groot Frontend PRD Pipeline
 
 on:
+  push:
+    branches:
+      - main 
   workflow_dispatch:
     inputs:
       commit:
