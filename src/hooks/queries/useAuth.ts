@@ -19,6 +19,7 @@ import {
   UpdateProfileRequest,
   User,
 } from "@/types";
+import { ApiError } from "@/types/api";
 
 /**
  * 현재 사용자 정보 조회
@@ -26,18 +27,43 @@ import {
 export const useCurrentUser = () => {
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasToken, setHasToken] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setHasToken(tokenStorage.isAuthenticated());
     setIsHydrated(true);
   }, []);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.auth.me(),
     queryFn: getCurrentUser,
     enabled: isHydrated && hasToken, // 하이드레이션 후에만 실행
     retry: false,
   });
+
+  // 401 에러 처리
+  useEffect(() => {
+    const error = query.error as unknown as ApiError;
+    if (query.error && error.status === 401) {
+      tokenStorage.removeToken();
+      queryClient.clear();
+      setHasToken(false); // 쿼리를 비활성화하기 위해 hasToken을 false로 설정
+    }
+  }, [query.error, queryClient]);
+
+  // 토큰 상태 변화 감지 (다른 컴포넌트에서 토큰이 제거되었을 수도 있음)
+  useEffect(() => {
+    const checkTokenInterval = setInterval(() => {
+      const currentHasToken = tokenStorage.isAuthenticated();
+      if (currentHasToken !== hasToken) {
+        setHasToken(currentHasToken);
+      }
+    }, 1000); // 1초마다 토큰 상태 확인
+
+    return () => clearInterval(checkTokenInterval);
+  }, [hasToken]);
+
+  return query;
 };
 
 /**
@@ -236,14 +262,23 @@ export const useAuth = () => {
     setIsHydrated(true);
   }, []);
 
-  const isAuthenticated = user?.id !== undefined;
+  // 토큰 상태를 useCurrentUser의 에러 상태와 동기화
+  useEffect(() => {
+    const apiError = error as unknown as ApiError;
+    if (error && apiError.status === 401) {
+      setHasToken(false);
+    }
+  }, [error]);
+
+  const isAuthenticated = (user as User)?.id !== undefined;
 
   return {
-    user,
+    user: user as User,
     isLoading: isLoading || !isHydrated, // 하이드레이션 전까지는 로딩 상태
     isHydrated,
     error,
     isAuthenticated,
+    hasToken,
     // 하이드레이션 완료 후 토큰과 인증 상태 확인
     isLoggedIn: isHydrated && hasToken && (isLoading || isAuthenticated),
   };
