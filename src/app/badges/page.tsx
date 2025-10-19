@@ -261,7 +261,7 @@ function BadgeCard({
       type="button"
       onClick={handleClick}
       disabled={!isUnlocked}
-      className={`flex  w-full flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 disabled:cursor-default disabled:pointer-events-none disabled:opacity-100 ${
+      className={`flex w-full flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 disabled:cursor-default disabled:pointer-events-none disabled:opacity-100 ${
         isUnlocked
           ? "border-emerald-200 bg-white hover:border-emerald-300 hover:shadow-md"
           : "border-transparent bg-slate-100/60 text-slate-400"

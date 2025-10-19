@@ -77,7 +77,7 @@ const CarbonCalculator = () => {
         onBackClick={() => router.replace("/")}
         title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
       />
-      <div className="flex gap-1  w-full">
+      <div className="flex gap-1 w-full">
         <Progress
           value={getStepProgress(step) > 0 ? 100 : 0}
           className="flex-1 h-1"

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { ApiError, ApiResponse } from "@/types/api";
+import { getQueryClient } from "@/lib/query-client";
 
 // API 기본 설정
 const API_BASE_URL =
@@ -42,9 +43,20 @@ class ApiClient {
       (error) => {
         const handledError = this.handleError(error);
 
-        // 401 에러 시 토큰 제거 (전역 처리)
+        // 401 에러 시 토큰 제거 및 캐시 클리어 (전역 처리)
         if (handledError.status === 401) {
           this.clearAuthToken();
+
+          // 브라우저 환경에서만 캐시 클리어 및 이벤트 발생
+          if (typeof window !== "undefined") {
+            try {
+              const queryClient = getQueryClient();
+              queryClient.clear();
+            } catch (error) {
+              console.warn("Failed to clear query cache:", error);
+            }
+            window.dispatchEvent(new CustomEvent("auth:logout"));
+          }
         }
 
         return Promise.reject(handledError);
