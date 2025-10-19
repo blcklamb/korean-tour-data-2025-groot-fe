@@ -3,19 +3,15 @@ import { IconPlus } from "@tabler/icons-react";
 
 interface AddRouteButtonProps {
   buttonText?: string;
-  onClick?: () => void;
+  disabled?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 export const AddRouteButton = (props: AddRouteButtonProps) => {
-  const { onClick, buttonText = "경로 추가", className, ...rest } = props;
+  const { buttonText = "경로 추가", ...rest } = props;
   return (
-    <Button
-      variant="secondary"
-      onClick={onClick}
-      className={className}
-      {...rest}
-    >
+    <Button variant="default" {...rest}>
       <IconPlus className="w-4 h-4 mr-2" />
       {buttonText}
     </Button>

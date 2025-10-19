@@ -198,6 +198,7 @@ export interface AccommodationType {
   id: number;
   name: string;
   type: string;
+  icon: string;
   carbonEmissionPerNight: number;
 }
 
