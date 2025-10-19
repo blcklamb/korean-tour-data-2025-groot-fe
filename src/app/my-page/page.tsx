@@ -76,6 +76,16 @@ export default function MyPage() {
 
   const { isLoggedIn, isLoading: isAuthLoading, isHydrated } = useAuth();
 
+  console.log(
+    "Current User:",
+    currentUser,
+    isLoggedIn,
+    isAuthLoading,
+    isHydrated,
+    "isUserLoading",
+    isUserLoading
+  );
+
   const {
     data: allBadges,
     isLoading: isAllBadgesLoading,
@@ -353,8 +363,8 @@ export default function MyPage() {
     logout.mutate();
   };
 
-  // 로딩 중이거나 하이드레이션 중일 때
-  if (isUserLoading || isAuthLoading) {
+  // 하이드레이션 중일 때
+  if (isAuthLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
@@ -383,8 +393,7 @@ export default function MyPage() {
     );
   }
 
-  // 사용자 정보 없음
-  if (!currentUser) {
+  if (isUserLoading) {
     return (
       <div className="space-y-6 pb-10">
         <AppHeader
@@ -392,21 +401,21 @@ export default function MyPage() {
           title="마이 페이지"
           onBackClick={() => router.back()}
         />
-        <div className="rounded-md border border-dashed bg-muted/20 p-6 text-sm text-muted-foreground">
-          사용자 정보를 불러오지 못했습니다.
+        <div className="flex min-h-[200px] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </div>
     );
   }
 
-  const displayName = currentUser.nickname || "친환경 여행자";
-  const displayAddress = currentUser.address || "등록된 주소가 없습니다.";
+  const displayName = currentUser?.nickname || "친환경 여행자";
+  const displayAddress = currentUser?.address || "등록된 주소가 없습니다.";
   const displayLevel = levelLabel;
   const profileImagePreview = formState
     ? formState.removeProfileImage
       ? null
-      : formState.profileImagePreview ?? currentUser.profileImageUrl ?? null
-    : currentUser.profileImageUrl ?? null;
+      : formState.profileImagePreview ?? currentUser?.profileImageUrl ?? null
+    : currentUser?.profileImageUrl ?? null;
 
   return (
     <div className="space-y-6 pb-10">
@@ -590,7 +599,8 @@ export default function MyPage() {
               </div>
               {formState &&
               !formState.removeProfileImage &&
-              (formState.profileImagePreview || currentUser.profileImageUrl) ? (
+              (formState.profileImagePreview ||
+                currentUser?.profileImageUrl) ? (
                 <Button
                   type="button"
                   variant="ghost"

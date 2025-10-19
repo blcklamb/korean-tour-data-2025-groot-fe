@@ -83,7 +83,7 @@ const RightSection = () => {
     router.push(ROUTES.LOGIN);
   };
 
-  if (isLoading || isAuthLoading) {
+  if (isAuthLoading) {
     return (
       <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
         <Loader2 className="animate-spin" />
@@ -101,6 +101,14 @@ const RightSection = () => {
       >
         로그인
       </Button>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
     );
   }
   return (

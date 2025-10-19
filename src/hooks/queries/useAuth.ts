@@ -41,27 +41,16 @@ export const useCurrentUser = () => {
     retry: false,
   });
 
-  // 401 에러 처리
+  // 401 에러 처리는 API 클라이언트 인터셉터에서 이미 처리됨
+  // 에러 발생 시 hasToken 상태만 동기화
   useEffect(() => {
     const error = query.error as unknown as ApiError;
     if (query.error && error.status === 401) {
-      tokenStorage.removeToken();
-      queryClient.clear();
       setHasToken(false); // 쿼리를 비활성화하기 위해 hasToken을 false로 설정
+      // 쿼리 데이터를 리셋하여 로딩 상태를 해제
+      queryClient.removeQueries({ queryKey: queryKeys.auth.me() });
     }
   }, [query.error, queryClient]);
-
-  // 토큰 상태 변화 감지 (다른 컴포넌트에서 토큰이 제거되었을 수도 있음)
-  useEffect(() => {
-    const checkTokenInterval = setInterval(() => {
-      const currentHasToken = tokenStorage.isAuthenticated();
-      if (currentHasToken !== hasToken) {
-        setHasToken(currentHasToken);
-      }
-    }, 1000); // 1초마다 토큰 상태 확인
-
-    return () => clearInterval(checkTokenInterval);
-  }, [hasToken]);
 
   return query;
 };
@@ -232,6 +221,11 @@ export const useLogout = (options?: {
       // 모든 캐시 클리어
       queryClient.clear();
 
+      // 로그아웃 이벤트 발생
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      }
+
       options?.onSuccess?.();
 
       // 로그인 페이지로 이동
@@ -241,6 +235,12 @@ export const useLogout = (options?: {
       // 에러가 발생해도 로컬 로그아웃은 수행
       tokenStorage.removeToken();
       queryClient.clear();
+
+      // 로그아웃 이벤트 발생
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      }
+
       router.push("/login");
 
       options?.onError?.(error);
@@ -260,6 +260,17 @@ export const useAuth = () => {
   useEffect(() => {
     setHasToken(tokenStorage.isAuthenticated());
     setIsHydrated(true);
+
+    // 로그아웃 이벤트 리스너 (API 클라이언트에서 발생)
+    const handleAuthLogout = () => {
+      setHasToken(false);
+    };
+
+    window.addEventListener("auth:logout", handleAuthLogout);
+
+    return () => {
+      window.removeEventListener("auth:logout", handleAuthLogout);
+    };
   }, []);
 
   // 토큰 상태를 useCurrentUser의 에러 상태와 동기화
@@ -272,15 +283,18 @@ export const useAuth = () => {
 
   const isAuthenticated = (user as User)?.id !== undefined;
 
+  // 토큰이 없으면 로딩 상태도 false로 설정
+  const actualIsLoading = hasToken ? isLoading || !isHydrated : !isHydrated;
+
   return {
     user: user as User,
-    isLoading: isLoading || !isHydrated, // 하이드레이션 전까지는 로딩 상태
+    isLoading: actualIsLoading, // 토큰이 없으면 로딩 상태 해제
     isHydrated,
     error,
     isAuthenticated,
     hasToken,
     // 하이드레이션 완료 후 토큰과 인증 상태 확인
-    isLoggedIn: isHydrated && hasToken && (isLoading || isAuthenticated),
+    isLoggedIn: isHydrated && hasToken && (actualIsLoading || isAuthenticated),
   };
 };
 

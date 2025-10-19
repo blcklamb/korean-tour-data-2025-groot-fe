@@ -61,3 +61,6 @@ export function QueryProvider({ children }: Props) {
     </QueryClientProvider>
   );
 }
+
+// API 클라이언트에서 사용할 수 있도록 QueryClient 인스턴스 내보내기
+export { getQueryClient };
