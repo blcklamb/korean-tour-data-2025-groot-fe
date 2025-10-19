@@ -120,7 +120,12 @@ export default function BadgesPage() {
     if (isUserBadgesError) {
       void refetchUserBadges();
     }
-  }, [isAllBadgesError, isUserBadgesError, refetchAllBadges, refetchUserBadges]);
+  }, [
+    isAllBadgesError,
+    isUserBadgesError,
+    refetchAllBadges,
+    refetchUserBadges,
+  ]);
 
   const unlockedCount = sortedBadges.filter((badge) => badge.unlocked).length;
   const totalCount = sortedBadges.length;
@@ -256,7 +261,7 @@ function BadgeCard({
       type="button"
       onClick={handleClick}
       disabled={!isUnlocked}
-      className={`flex h-40 w-full flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 disabled:cursor-default disabled:pointer-events-none disabled:opacity-100 ${
+      className={`flex  w-full flex-col items-center justify-between rounded-2xl border p-4 text-center shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 disabled:cursor-default disabled:pointer-events-none disabled:opacity-100 ${
         isUnlocked
           ? "border-emerald-200 bg-white hover:border-emerald-300 hover:shadow-md"
           : "border-transparent bg-slate-100/60 text-slate-400"
@@ -268,7 +273,9 @@ function BadgeCard({
           alt={badge.name}
           width={48}
           height={48}
-          className={`h-12 w-12 object-contain ${isUnlocked ? "" : "opacity-60"}`}
+          className={`h-12 w-12 object-contain ${
+            isUnlocked ? "" : "opacity-60"
+          }`}
         />
       ) : (
         <LogoIcon className={`h-12 w-12 ${isUnlocked ? "" : "opacity-60"}`} />
@@ -281,7 +288,7 @@ function BadgeCard({
         {badge.name}
       </span>
       <p
-        className={`line-clamp-2 text-xs leading-relaxed ${
+        className={`text-xs  ${
           isUnlocked ? "text-slate-500" : "text-slate-400"
         }`}
       >
