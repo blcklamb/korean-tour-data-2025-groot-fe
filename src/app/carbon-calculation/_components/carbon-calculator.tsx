@@ -1,7 +1,6 @@
 "use client";
 
 import { AppHeader } from "@/components/ui/header";
-import LogoIcon from "@/components/ui/logo";
 import { useFunnel } from "@/hooks/useFunnel";
 import { getRouteLabel, ROUTES } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
@@ -78,28 +77,21 @@ const CarbonCalculator = () => {
         onBackClick={() => router.replace("/")}
         title={getRouteLabel(ROUTES.CARBON_CALCULATION)}
       />
+      <div className="flex gap-1  w-full">
+        <Progress
+          value={getStepProgress(step) > 0 ? 100 : 0}
+          className="flex-1 h-1"
+        />
+        <Progress
+          value={getStepProgress(step) >= 66 ? 100 : 0}
+          className="flex-1 h-1"
+        />
+        <Progress
+          value={getStepProgress(step) > 66 ? 100 : 0}
+          className="flex-1 h-1"
+        />
+      </div>
       <div className="p-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <LogoIcon />
-            <div className="text-2xl font-bold">그루미터</div>
-          </div>
-          <p>여행 계획을 입력하여 예상 탄소 배출량을 계산해보세요.</p>
-          <div className="flex gap-1 mt-2 w-full">
-            <Progress
-              value={getStepProgress(step) > 0 ? 100 : 0}
-              className="flex-1 h-1"
-            />
-            <Progress
-              value={getStepProgress(step) >= 66 ? 100 : 0}
-              className="flex-1 h-1"
-            />
-            <Progress
-              value={getStepProgress(step) > 66 ? 100 : 0}
-              className="flex-1 h-1"
-            />
-          </div>
-        </div>
         <Funnel>
           <Step name="PERSONNEL">
             <PersonnelStep
@@ -165,6 +157,7 @@ const PersonnelStep = ({ form, onClickNext }: PersonnelStepProps) => {
         <Input
           id="personnel"
           type="number"
+          inputMode="numeric"
           min="1"
           placeholder="인원수를 입력하세요"
           {...form.register("personnel", { valueAsNumber: true })}
@@ -195,6 +188,13 @@ const RouteEcoCoursesStep = ({
   const [selectedEcoCourse, setSelectedEcoCourse] = useState<string>("");
   const [selectedEcoCourseTransport, setSelectedEcoCourseTransport] =
     useState<string>("");
+
+  const enableToAddRoutesDepartureArrival =
+    selectedDepartureCity &&
+    selectedArrivalCity &&
+    selectedCustomRouteTransport;
+  const enableToAddRoutesEcoCourse =
+    selectedEcoCourse && selectedEcoCourseTransport;
 
   const saveRoutes = useSaveRoutes({});
 
@@ -252,7 +252,6 @@ const RouteEcoCoursesStep = ({
 
   const enableToGoNext = routeFields.length > 0;
 
-  // 새로운 커스텀 훅 사용
   const {
     locationOptions,
     ecoTourOptions,
@@ -303,6 +302,13 @@ const RouteEcoCoursesStep = ({
           error={hasError}
           message="데이터를 불러오는 중 오류가 발생했습니다."
         >
+          <div className="text-base font-semibold">
+            경로 및 생태 관광 코스 선택
+          </div>
+          <p>
+            직접 출발지/도착지를 정하거나
+            <br /> 생태 관광 코스를 선택할 수 있어요.
+          </p>
           {routeFields.length > 0 && (
             <>
               <div className="text-base font-semibold">추가된 여행 항목</div>
@@ -337,9 +343,6 @@ const RouteEcoCoursesStep = ({
               ))}
             </>
           )}
-          <div className="text-base font-semibold">
-            경로 및 생태 관광 코스 선택
-          </div>
           {/* 직접 경로 추가 */}
           <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
             <div className="text-base font-medium text-gray-600 flex items-center gap-2">
@@ -391,7 +394,10 @@ const RouteEcoCoursesStep = ({
                 if (item?.value) setSelectedCustomRouteTransport(item.value);
               }}
             />
-            <AddRouteButton onClick={onClickAddCustomRoute} />
+            <AddRouteButton
+              onClick={onClickAddCustomRoute}
+              disabled={!enableToAddRoutesDepartureArrival}
+            />
           </div>
           {/* 관광 코스 선택 */}
           <div className="border border-gray-200 rounded-lg p-2 flex flex-col gap-2">
@@ -435,7 +441,10 @@ const RouteEcoCoursesStep = ({
                 if (item?.value) setSelectedEcoCourseTransport(item.value);
               }}
             />
-            <AddRouteButton onClick={onClickAddEcoCourse} />
+            <AddRouteButton
+              onClick={onClickAddEcoCourse}
+              disabled={!enableToAddRoutesEcoCourse}
+            />
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClickPrevious}>
@@ -466,6 +475,9 @@ const AccommodationStep = ({
   const [selectedAccommodationId, setSelectedAccommodationId] = useState<
     number | null
   >(null);
+
+  const enableToAddAccommodation =
+    selectedAccommodationId && accommodationPeriod[0] && accommodationPeriod[1];
 
   const router = useRouter();
 
@@ -581,6 +593,7 @@ const AccommodationStep = ({
                 onClick={() => setSelectedAccommodationId(option.id)}
               >
                 <div className="flex items-center gap-2 h-full">
+                  <span>{option.icon}</span>
                   <span>{option.name}</span>
                 </div>
               </Card>
@@ -591,6 +604,7 @@ const AccommodationStep = ({
       <AddRouteButton
         buttonText="숙박 추가"
         onClick={onClickAddAccommodation}
+        disabled={!enableToAddAccommodation}
       />
       <div className="flex gap-2">
         <Button variant="outline" onClick={onClickPrevious}>

@@ -11,7 +11,6 @@ export type CarbonCalculationStep =
 
 export interface CarbonCalculatorFormValues {
   personnel: number;
-  // todo: naming
   routes: {
     departureLocationId?: number;
     arrivalLocationId?: number;
