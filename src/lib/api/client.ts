@@ -40,7 +40,14 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error) => {
-        return Promise.reject(this.handleError(error));
+        const handledError = this.handleError(error);
+
+        // 401 에러 시 토큰 제거 (전역 처리)
+        if (handledError.status === 401) {
+          this.clearAuthToken();
+        }
+
+        return Promise.reject(handledError);
       }
     );
   }
@@ -51,6 +58,15 @@ class ApiClient {
       return localStorage.getItem("auth_token");
     }
     return null;
+  }
+
+  private clearAuthToken(): void {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_token");
+      // 쿠키도 제거
+      document.cookie =
+        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
   }
 
   private handleError(error: unknown): ApiError {
