@@ -203,6 +203,7 @@ export default function EcoTourismCoursesPage() {
             ))}
           </div>
         )}
+        <div className="text-xs text-gray-300 text-right mb-2">본 페이지의 이미지들은 한국관광공사에서<br /> 공공누리 제1 유형 및 제 3유형으로 개방한 이미지들을 사용하였습니다</div>
       </section>
     </div>
   );
