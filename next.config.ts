@@ -5,13 +5,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "example.com",
-        port: "",
-        pathname: "/**",
-        search: "",
-      },
-      {
-        protocol: "https",
         hostname: "groot-be-bucket.s3.ap-northeast-2.amazonaws.com",
         port: "",
         pathname: "/**",
@@ -27,6 +20,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "http",
         hostname: "tong.visitkorea.or.kr",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
+      {
+        protocol: "https",
+        hostname: "search.pstatic.net",
         port: "",
         pathname: "/**",
         search: "",
